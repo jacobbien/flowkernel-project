@@ -1,0 +1,24 @@
+Package: flowkernel
+Title: Smoothly Varying Mixture of Gaussians Modeling
+Version: 0.0.0.9000
+Authors@R: 
+    person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
+Description: This package uses kernel-smoothed EM to estimate a smoothly
+    varying mixture of Gaussians model.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports: 
+    dplyr,
+    ggplot2,
+    magrittr,
+    mclust,
+    mvtnorm,
+    purrr,
+    rlang,
+    stats,
+    tibble,
+    tidyr
+LitrVersionUsed: 0.8.0
+LitrId: e65502b84a75e2ddd5149a362b740dbf
