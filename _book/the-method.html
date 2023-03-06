@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>3 The method | Creating the flowkernel R package</title>
+  <meta name="description" content="3 The method | Creating the flowkernel R package" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="3 The method | Creating the flowkernel R package" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="3 The method | Creating the flowkernel R package" />
+  
+  
+  
+
+<meta name="author" content="Jacob Bien" />
+
+
+<meta name="date" content="2023-03-06" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="the-model.html"/>
+<link rel="next" href="conclude.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#description-file"><i class="fa fa-check"></i><b>1.1</b> DESCRIPTION file</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#package-level-documentation"><i class="fa fa-check"></i><b>1.2</b> Package-level documentation</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="the-model.html"><a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="the-model.html"><a href="the-model.html#generating-data-from-model"><i class="fa fa-check"></i><b>2.1</b> Generating data from model</a></li>
+<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-data-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.2</b> Visualizing data in one-dimensional case</a></li>
+<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model in one-dimensional case</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="the-method.html"><a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="the-method.html"><a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a></li>
+<li class="chapter" data-level="3.2" data-path="the-method.html"><a href="the-method.html#e-step"><i class="fa fa-check"></i><b>3.2</b> E-step</a></li>
+<li class="chapter" data-level="3.3" data-path="the-method.html"><a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="the-method.html"><a href="the-method.html#m-step-pi"><i class="fa fa-check"></i><b>3.3.1</b> M-step <span class="math inline">\(\pi\)</span></a></li>
+<li class="chapter" data-level="3.3.2" data-path="the-method.html"><a href="the-method.html#m-step-mu"><i class="fa fa-check"></i><b>3.3.2</b> M-step <span class="math inline">\(\mu\)</span></a></li>
+<li class="chapter" data-level="3.3.3" data-path="the-method.html"><a href="the-method.html#m-step-sigma"><i class="fa fa-check"></i><b>3.3.3</b> M-step <span class="math inline">\(\Sigma\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Creating the <code>flowkernel</code> R package</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-method" class="section level1 hasAnchor" number="3">
+<h1><span class="header-section-number">3</span> The method<a href="the-method.html#the-method" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Given a kernel <span class="math inline">\(w_h(t)\)</span> with bandwidth <span class="math inline">\(h\)</span>, consider the following EM-inspired algorithm.</p>
+<p>Here’s a high-level look at the algorithm. We’ll discuss the initialization, E-step, and M-step in the next subsections.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="the-method.html#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Kernel-smoothed EM algorithm</span></span>
+<span id="cb24-2"><a href="the-method.html#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb24-3"><a href="the-method.html#cb24-3" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#y-param'>&lt;&lt;y-param&gt;&gt;</a></span>
+<span id="cb24-4"><a href="the-method.html#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param K number of components</span></span>
+<span id="cb24-5"><a href="the-method.html#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param hmu bandwidth for mu parameter</span></span>
+<span id="cb24-6"><a href="the-method.html#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param hSigma bandwidth for Sigma parameter</span></span>
+<span id="cb24-7"><a href="the-method.html#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param hpi bandwidth for pi parameter</span></span>
+<span id="cb24-8"><a href="the-method.html#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param num_iter number of iterations of EM to perform</span></span>
+<span id="cb24-9"><a href="the-method.html#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb24-10"><a href="the-method.html#cb24-10" aria-hidden="true" tabindex="-1"></a><span id='kernel_em'>kernel_em</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(y, K, hmu, hSigma, hpi, <span class="at">num_iter =</span> <span class="dv">100</span>) {</span>
+<span id="cb24-11"><a href="the-method.html#cb24-11" aria-hidden="true" tabindex="-1"></a>  num_times <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb24-12"><a href="the-method.html#cb24-12" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">ncol</span>(y[[<span class="dv">1</span>]])</span>
+<span id="cb24-13"><a href="the-method.html#cb24-13" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(num_times, K, d))</span>
+<span id="cb24-14"><a href="the-method.html#cb24-14" aria-hidden="true" tabindex="-1"></a>  Sigma <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(num_times, K, d, d))</span>
+<span id="cb24-15"><a href="the-method.html#cb24-15" aria-hidden="true" tabindex="-1"></a>  pi <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, num_times, K)</span>
+<span id="cb24-16"><a href="the-method.html#cb24-16" aria-hidden="true" tabindex="-1"></a>  resp <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># responsibilities gamma[[t]][i, k]</span></span>
+<span id="cb24-17"><a href="the-method.html#cb24-17" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb24-18"><a href="the-method.html#cb24-18" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#initialize-with-mclust'>&lt;&lt;initialize-with-mclust&gt;&gt;</a></span>
+<span id="cb24-19"><a href="the-method.html#cb24-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (l <span class="cf">in</span> <span class="fu">seq</span>(num_iter)) {</span>
+<span id="cb24-20"><a href="the-method.html#cb24-20" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#E-step'>&lt;&lt;E-step&gt;&gt;</a></span>
+<span id="cb24-21"><a href="the-method.html#cb24-21" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#M-step'>&lt;&lt;M-step&gt;&gt;</a></span>
+<span id="cb24-22"><a href="the-method.html#cb24-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb24-23"><a href="the-method.html#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(mu) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">paste0</span>(<span class="st">&quot;cluster&quot;</span>, <span class="dv">1</span><span class="sc">:</span>K), <span class="cn">NULL</span>)</span>
+<span id="cb24-24"><a href="the-method.html#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(Sigma) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">paste0</span>(<span class="st">&quot;cluster&quot;</span>, <span class="dv">1</span><span class="sc">:</span>K), <span class="cn">NULL</span>, <span class="cn">NULL</span>)</span>
+<span id="cb24-25"><a href="the-method.html#cb24-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(pi) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">paste0</span>(<span class="st">&quot;cluster&quot;</span>, <span class="dv">1</span><span class="sc">:</span>K))</span>
+<span id="cb24-26"><a href="the-method.html#cb24-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma, <span class="at">pi =</span> pi, <span class="at">resp =</span> resp)</span>
+<span id="cb24-27"><a href="the-method.html#cb24-27" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div id="initialization" class="section level2 hasAnchor" number="3.1">
+<h2><span class="header-section-number">3.1</span> Initialization<a href="the-method.html#initialization" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>To initialize <span class="math inline">\((\mu_t,\Sigma_t,\pi_t)\)</span> for <span class="math inline">\(t=1,\ldots, T\)</span>, we fit a separate Gaussian mixture model for each <span class="math inline">\(t\)</span>. We use <code>mclust</code> to do this.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb25-1"><a href="the-method.html#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='initialize-with-mclust'>###&quot;initialize-with-mclust&quot;###</span></span></span>
+<span id="cb25-2"><a href="the-method.html#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># use mclust to get initial mu, Sigma, pi for each time t:</span></span>
+<span id="cb25-3"><a href="the-method.html#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (d <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="fu">stop</span>(<span class="st">&quot;not yet implemented.  Should call VVV rather than V&quot;</span>)</span>
+<span id="cb25-4"><a href="the-method.html#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (tt <span class="cf">in</span> <span class="fu">seq</span>(num_times)) {</span>
+<span id="cb25-5"><a href="the-method.html#cb25-5" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> mclust<span class="sc">::</span><span class="fu">Mclust</span>(y[[tt]], <span class="at">G =</span> K, <span class="at">modelNames =</span> <span class="st">&quot;V&quot;</span>)</span>
+<span id="cb25-6"><a href="the-method.html#cb25-6" aria-hidden="true" tabindex="-1"></a>    mu[tt, , <span class="dv">1</span>] <span class="ot">&lt;-</span> fit<span class="sc">$</span>parameters<span class="sc">$</span>mean</span>
+<span id="cb25-7"><a href="the-method.html#cb25-7" aria-hidden="true" tabindex="-1"></a>    Sigma[tt, , <span class="dv">1</span>, <span class="dv">1</span>] <span class="ot">&lt;-</span> fit<span class="sc">$</span>parameters<span class="sc">$</span>variance<span class="sc">$</span>sigmasq</span>
+<span id="cb25-8"><a href="the-method.html#cb25-8" aria-hidden="true" tabindex="-1"></a>    pi[tt, ] <span class="ot">&lt;-</span> fit<span class="sc">$</span>parameters<span class="sc">$</span>pro</span>
+<span id="cb25-9"><a href="the-method.html#cb25-9" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb26-1"><a href="the-method.html#cb26-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;mclust&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;mclust&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `mclust::fun()`</code></pre>
+<p>Let’s have a look at what the initialization does on our example data.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb28-1"><a href="the-method.html#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mclust)</span>
+<span id="cb28-2"><a href="the-method.html#cb28-2" aria-hidden="true" tabindex="-1"></a>num_times <span class="ot">&lt;-</span> <span class="fu">length</span>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y)</span>
+<span id="cb28-3"><a href="the-method.html#cb28-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> ex1<span class="sc">$</span>dat<span class="sc">$</span>y</span>
+<span id="cb28-4"><a href="the-method.html#cb28-4" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> ex1<span class="sc">$</span>dat<span class="sc">$</span>mu</span>
+<span id="cb28-5"><a href="the-method.html#cb28-5" aria-hidden="true" tabindex="-1"></a>Sigma <span class="ot">&lt;-</span> ex1<span class="sc">$</span>dat<span class="sc">$</span>Sigma</span>
+<span id="cb28-6"><a href="the-method.html#cb28-6" aria-hidden="true" tabindex="-1"></a>pi <span class="ot">&lt;-</span> ex1<span class="sc">$</span>dat<span class="sc">$</span>pi</span>
+<span id="cb28-7"><a href="the-method.html#cb28-7" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#initialize-with-mclust'>&lt;&lt;initialize-with-mclust&gt;&gt;</a></span>
+<span id="cb28-8"><a href="the-method.html#cb28-8" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data_and_model'>plot_data_and_model</a>(y,ex1<span class="sc">$</span>dat<span class="sc">$</span>z, mu)</span></code></pre></div>
+<pre><code>## Package &#39;mclust&#39; version 6.0.0
+## Type &#39;citation(&quot;mclust&quot;)&#39; for citing this R package in publications.</code></pre>
+<p><img src="_main_files/figure-html/unnamed-chunk-15-1.png" width="672" /></p>
+<p>The means are jagged because we have not used any smoothness information yet.</p>
+</div>
+<div id="e-step" class="section level2 hasAnchor" number="3.2">
+<h2><span class="header-section-number">3.2</span> E-step<a href="the-method.html#e-step" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Given an estimate of <span class="math inline">\((\mu,\Sigma,\pi)\)</span>, the E-step computes for each <span class="math inline">\(Y_{it}\)</span> how “responsible” each cluster is for it. In particular, the responsibility vector <span class="math inline">\((\hat\gamma_{it1},\ldots,\hat\gamma_{itK})\)</span> is a probability vector. It is computed using Bayes rule:</p>
+<p><span class="math display">\[
+\hat\gamma_{itk}=\hat{\mathbb{P}}(Z_{it}=k|Y_{it})=\frac{\hat \pi_{tk}\phi(Y_{it};\hat\mu_{tk},\hat\Sigma_{tk})}{\sum_{\ell=1}^K\hat \pi_{t\ell}\phi(Y_{it};\hat\mu_{t\ell },\hat\Sigma_{t\ell})}
+\]</span></p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb30-1"><a href="the-method.html#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='E-step'>###&quot;E-step&quot;###</span></span></span>
+<span id="cb30-2"><a href="the-method.html#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># E-step: update responsibilities</span></span>
+<span id="cb30-3"><a href="the-method.html#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (d <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="fu">stop</span>(<span class="st">&quot;not yet implemented.  Should use mvtnorm::dmvtnorm()&quot;</span>)</span>
+<span id="cb30-4"><a href="the-method.html#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (tt <span class="cf">in</span> <span class="fu">seq</span>(num_times)) {</span>
+<span id="cb30-5"><a href="the-method.html#cb30-5" aria-hidden="true" tabindex="-1"></a>    phi <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, <span class="fu">nrow</span>(y[[tt]]), K)</span>
+<span id="cb30-6"><a href="the-method.html#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq</span>(K)) {</span>
+<span id="cb30-7"><a href="the-method.html#cb30-7" aria-hidden="true" tabindex="-1"></a>      phi[, k] <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">dnorm</span>(y[[tt]],</span>
+<span id="cb30-8"><a href="the-method.html#cb30-8" aria-hidden="true" tabindex="-1"></a>                               <span class="at">mean =</span> mu[tt, k, <span class="dv">1</span>],</span>
+<span id="cb30-9"><a href="the-method.html#cb30-9" aria-hidden="true" tabindex="-1"></a>                               <span class="at">sd =</span> <span class="fu">sqrt</span>(Sigma[tt, k, <span class="dv">1</span>, <span class="dv">1</span>]))</span>
+<span id="cb30-10"><a href="the-method.html#cb30-10" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb30-11"><a href="the-method.html#cb30-11" aria-hidden="true" tabindex="-1"></a>    temp <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">t</span>(phi) <span class="sc">*</span> pi[tt, ])</span>
+<span id="cb30-12"><a href="the-method.html#cb30-12" aria-hidden="true" tabindex="-1"></a>    resp[[tt]] <span class="ot">&lt;-</span> temp <span class="sc">/</span> <span class="fu">rowSums</span>(temp)</span>
+<span id="cb30-13"><a href="the-method.html#cb30-13" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<p>Let’s have a look at the responsibilities that we get using the initial parameter estimates:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb31-1"><a href="the-method.html#cb31-1" aria-hidden="true" tabindex="-1"></a>resp <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># responsibilities gamma[[t]][i, k]</span></span>
+<span id="cb31-2"><a href="the-method.html#cb31-2" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#E-step'>&lt;&lt;E-step&gt;&gt;</a></span></code></pre></div>
+<p>Here are some from the 50th time point:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="the-method.html#cb32-1" aria-hidden="true" tabindex="-1"></a>resp[[<span class="dv">50</span>]][<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, ]</span></code></pre></div>
+<pre><code>##              [,1]         [,2]
+## [1,] 1.000000e+00 7.040453e-18
+## [2,] 4.061480e-22 1.000000e+00
+## [3,] 3.281805e-28 1.000000e+00
+## [4,] 1.050034e-29 1.000000e+00</code></pre>
+<div class="sourceCode" id="cb34"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb34-1"><a href="the-method.html#cb34-1" aria-hidden="true" tabindex="-1"></a>zest <span class="ot">&lt;-</span> resp <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="sc">~</span> <span class="fu">max.col</span>(.x))</span>
+<span id="cb34-2"><a href="the-method.html#cb34-2" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data_and_model'>plot_data_and_model</a>(y, zest, <span class="at">mu =</span> mu)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
+<p>Looks reasonable! Notice that there are a small number of obviously incorrectly labeled points. My guess is this has to do with situations in which the labels of the clusters from <code>mclust</code> are swapped. Without anything tying together the separate clusterings at each time, there is no reason why cluster 1 and cluster 2 should have the same meaning across different times. However, after the M-step imposes smoothness, I believe this should straighten out these stray points.</p>
+</div>
+<div id="m-step" class="section level2 hasAnchor" number="3.3">
+<h2><span class="header-section-number">3.3</span> M-step<a href="the-method.html#m-step" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>In the M-step, we update the estimates of <span class="math inline">\((\mu,\Sigma,\pi)\)</span>:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb35-1"><a href="the-method.html#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='M-step'>###&quot;M-step&quot;###</span></span></span>
+<span id="cb35-2"><a href="the-method.html#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># M-step: update estimates of (mu, Sigma, pi)</span></span>
+<span id="cb35-3"><a href="the-method.html#cb35-3" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#M-step-pi'>&lt;&lt;M-step-pi&gt;&gt;</a></span>
+<span id="cb35-4"><a href="the-method.html#cb35-4" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#M-step-mu'>&lt;&lt;M-step-mu&gt;&gt;</a></span>
+<span id="cb35-5"><a href="the-method.html#cb35-5" aria-hidden="true" tabindex="-1"></a><a href='the-method.html#M-step-Sigma'>&lt;&lt;M-step-Sigma&gt;&gt;</a></span></code></pre></div>
+<p>Define</p>
+<p><span class="math display">\[
+\hat\gamma_{\cdot sk}=\sum_{i=1}^{n_s}\hat\gamma_{isk},
+\]</span>
+which is an estimate of the number of points in class <span class="math inline">\(k\)</span> at time <span class="math inline">\(s\)</span>, and define</p>
+<p><span class="math display">\[
+\tilde\gamma_{\cdot sk}=\sum_{s=1}^Tw_h(t-s)\hat\gamma_{\cdot sk},
+\]</span>
+which is a smoothed version of this estimate.</p>
+<p>Then we estimate <span class="math inline">\(\pi\)</span> as follows:</p>
+<p><span class="math display">\[
+\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_h(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_h(t-s)n_s}}
+\]</span></p>
+<p>For <span class="math inline">\(\mu\)</span>:</p>
+<p><span class="math display">\[
+\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\sum_{i=1}^{n_s}\hat\gamma_{isk}Y_{is}}{\tilde\gamma_{\cdot tk}}
+\]</span></p>
+<p>For <span class="math inline">\(\Sigma\)</span>:</p>
+<p><span class="math display">\[
+\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\sum_{i=1}^{n_s}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\tilde\gamma_{\cdot tk}}
+\]</span></p>
+<p>Each of these quantities involves a summation over <span class="math inline">\(i\)</span> before the smoothing over time. In each case we do the summation over <span class="math inline">\(i\)</span> first so that then all quantities can be expressed as an array (rather than as lists). This should make the smoothing more efficient.</p>
+<div id="m-step-pi" class="section level3 hasAnchor" number="3.3.1">
+<h3><span class="header-section-number">3.3.1</span> M-step <span class="math inline">\(\pi\)</span><a href="the-method.html#m-step-pi" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>For <span class="math inline">\(\pi\)</span> estimation, we compute</p>
+<p><span class="math display">\[
+\hat\gamma_{\cdot sk}=\sum_{i=1}^{n_s}\hat\gamma_{isk},
+\]</span>
+And then we compute the kernel smoothed version of this:</p>
+<p><span class="math display">\[
+\tilde\gamma_{\cdot sk}=\sum_{s=1}^Tw_h(t-s)\hat\gamma_{\cdot sk},
+\]</span></p>
+<p>We are then ready to compute the following:</p>
+<p><span class="math display">\[
+\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_h(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_h(t-s)n_s}}
+\]</span></p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb36-1"><a href="the-method.html#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='M-step-pi'>###&quot;M-step-pi&quot;###</span></span></span>
+<span id="cb36-2"><a href="the-method.html#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># do summations over i:</span></span>
+<span id="cb36-3"><a href="the-method.html#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># form T-by-K matrix summing resp_itk over i</span></span>
+<span id="cb36-4"><a href="the-method.html#cb36-4" aria-hidden="true" tabindex="-1"></a>  resp_sum <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map</span>(resp, <span class="sc">~</span> <span class="fu">colSums</span>(.x)) <span class="sc">%&gt;%</span></span>
+<span id="cb36-5"><a href="the-method.html#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb36-6"><a href="the-method.html#cb36-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">matrix</span>(<span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb36-7"><a href="the-method.html#cb36-7" aria-hidden="true" tabindex="-1"></a>  resp_sum_smooth <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb36-8"><a href="the-method.html#cb36-8" aria-hidden="true" tabindex="-1"></a>    resp_sum, <span class="dv">2</span>, <span class="cf">function</span>(x) stats<span class="sc">::</span><span class="fu">ksmooth</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(x), x, <span class="at">bandwidth =</span> hpi)<span class="sc">$</span>y</span>
+<span id="cb36-9"><a href="the-method.html#cb36-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb36-10"><a href="the-method.html#cb36-10" aria-hidden="true" tabindex="-1"></a>  pi <span class="ot">&lt;-</span> resp_sum_smooth <span class="sc">/</span> <span class="fu">rowSums</span>(resp_sum_smooth)</span></code></pre></div>
+<p>Here was an example that I used to figure out how to use the <code>ksmooth()</code> function:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="the-method.html#cb37-1" aria-hidden="true" tabindex="-1"></a>xx <span class="ot">&lt;-</span> <span class="dv">5</span> <span class="sc">*</span> <span class="fu">sin</span>((<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>) <span class="sc">/</span> <span class="dv">5</span>) <span class="sc">+</span> <span class="fu">rnorm</span>(<span class="dv">100</span>)</span>
+<span id="cb37-2"><a href="the-method.html#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(xx, <span class="at">type=</span><span class="st">&quot;o&quot;</span>)</span>
+<span id="cb37-3"><a href="the-method.html#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(stats<span class="sc">::</span><span class="fu">ksmooth</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(xx), xx, <span class="at">bandwidth =</span> <span class="dv">5</span>), <span class="at">col=</span><span class="st">&quot;red&quot;</span>)</span>
+<span id="cb37-4"><a href="the-method.html#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="fu">lines</span>(stats<span class="sc">::</span><span class="fu">ksmooth</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(xx), xx, <span class="at">bandwidth =</span> <span class="dv">20</span>), <span class="at">col=</span><span class="st">&quot;blue&quot;</span>)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-19-1.png" width="672" /></p>
+</div>
+<div id="m-step-mu" class="section level3 hasAnchor" number="3.3.2">
+<h3><span class="header-section-number">3.3.2</span> M-step <span class="math inline">\(\mu\)</span><a href="the-method.html#m-step-mu" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>Next, we compute the estimate of <span class="math inline">\(\mu\)</span>. We again first compute the unsmoothed estimate and then apply smoothing to it:</p>
+<p><span class="math display">\[
+\sum_{i=1}^{n_s}\hat\gamma_{isk}Y_{is}
+\]</span>
+This is then used in the following smoothed estimate:</p>
+<p><span class="math display">\[
+\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\sum_{i=1}^{n_s}\hat\gamma_{isk}Y_{is}}{\tilde\gamma_{\cdot tk}}
+\]</span></p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb38-1"><a href="the-method.html#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='M-step-mu'>###&quot;M-step-mu&quot;###</span></span></span>
+<span id="cb38-2"><a href="the-method.html#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># form T-by-K-by-d array summing resp_itk * Y_ij over i</span></span>
+<span id="cb38-3"><a href="the-method.html#cb38-3" aria-hidden="true" tabindex="-1"></a>  y_sum <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2</span>(resp, y, <span class="sc">~</span> <span class="fu">crossprod</span>(.x, .y)) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-4"><a href="the-method.html#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb38-5"><a href="the-method.html#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">array</span>(<span class="fu">c</span>(K, d, num_times)) <span class="sc">%&gt;%</span> </span>
+<span id="cb38-6"><a href="the-method.html#cb38-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aperm</span>(<span class="fu">c</span>(<span class="dv">3</span>,<span class="dv">1</span>,<span class="dv">2</span>))</span>
+<span id="cb38-7"><a href="the-method.html#cb38-7" aria-hidden="true" tabindex="-1"></a>  y_sum_smoothed <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb38-8"><a href="the-method.html#cb38-8" aria-hidden="true" tabindex="-1"></a>    y_sum, <span class="dv">2</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) stats<span class="sc">::</span><span class="fu">ksmooth</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(x), x, <span class="at">bandwidth =</span> hmu)<span class="sc">$</span>y</span>
+<span id="cb38-9"><a href="the-method.html#cb38-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb38-10"><a href="the-method.html#cb38-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq</span>(d)) {</span>
+<span id="cb38-11"><a href="the-method.html#cb38-11" aria-hidden="true" tabindex="-1"></a>    mu[, , j] <span class="ot">&lt;-</span> y_sum_smoothed[, , j] <span class="sc">/</span> resp_sum_smooth</span>
+<span id="cb38-12"><a href="the-method.html#cb38-12" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
+<p>In the above code for <code>y_sum</code>, I convert a list of length <span class="math inline">\(T\)</span>, where each list element is a <span class="math inline">\(K\times d\)</span> matrix, to a <span class="math inline">\(T\times K\times d\)</span> array. To verify that this conversion is done correctly, I tried this small example:</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb39-1"><a href="the-method.html#cb39-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">3</span>), <span class="fu">matrix</span>(<span class="dv">13</span><span class="sc">:</span><span class="dv">24</span>, <span class="dv">4</span>, <span class="dv">3</span>))</span>
+<span id="cb39-2"><a href="the-method.html#cb39-2" aria-hidden="true" tabindex="-1"></a>a</span>
+<span id="cb39-3"><a href="the-method.html#cb39-3" aria-hidden="true" tabindex="-1"></a>a <span class="sc">%&gt;%</span> <span class="fu">unlist</span>() <span class="sc">%&gt;%</span> <span class="fu">array</span>(<span class="fu">c</span>(<span class="dv">4</span>,<span class="dv">3</span>,<span class="dv">2</span>))</span></code></pre></div>
+<pre><code>## [[1]]
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+## 
+## [[2]]
+##      [,1] [,2] [,3]
+## [1,]   13   17   21
+## [2,]   14   18   22
+## [3,]   15   19   23
+## [4,]   16   20   24</code></pre>
+<pre><code>## , , 1
+## 
+##      [,1] [,2] [,3]
+## [1,]    1    5    9
+## [2,]    2    6   10
+## [3,]    3    7   11
+## [4,]    4    8   12
+## 
+## , , 2
+## 
+##      [,1] [,2] [,3]
+## [1,]   13   17   21
+## [2,]   14   18   22
+## [3,]   15   19   23
+## [4,]   16   20   24</code></pre>
+</div>
+<div id="m-step-sigma" class="section level3 hasAnchor" number="3.3.3">
+<h3><span class="header-section-number">3.3.3</span> M-step <span class="math inline">\(\Sigma\)</span><a href="the-method.html#m-step-sigma" class="anchor-section" aria-label="Anchor link to header"></a></h3>
+<p>We start by computing</p>
+<p><span class="math display">\[
+\sum_{i=1}^{n_s}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top
+\]</span></p>
+<p>and then go on to compute</p>
+<p><span class="math display">\[
+\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\sum_{i=1}^{n_s}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\tilde\gamma_{\cdot tk}}
+\]</span></p>
+<div class="sourceCode" id="cb42"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb42-1"><a href="the-method.html#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='M-step-Sigma'>###&quot;M-step-Sigma&quot;###</span></span></span>
+<span id="cb42-2"><a href="the-method.html#cb42-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># form a T-by-K-by-d-by-d array</span></span>
+<span id="cb42-3"><a href="the-method.html#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="co"># summing (Y_it - mu_t)*diag(resp_itk)*(Y_it - mu_t)^T over i</span></span>
+<span id="cb42-4"><a href="the-method.html#cb42-4" aria-hidden="true" tabindex="-1"></a>  mat_sum <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(num_times, K, d, d))</span>
+<span id="cb42-5"><a href="the-method.html#cb42-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (tt <span class="cf">in</span> <span class="fu">seq</span>(num_times)) {</span>
+<span id="cb42-6"><a href="the-method.html#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq</span>(K)) {</span>
+<span id="cb42-7"><a href="the-method.html#cb42-7" aria-hidden="true" tabindex="-1"></a>      yy <span class="ot">&lt;-</span> y[[tt]] <span class="sc">-</span> mu[tt, k, ]</span>
+<span id="cb42-8"><a href="the-method.html#cb42-8" aria-hidden="true" tabindex="-1"></a>      mat_sum[tt, k, , ] <span class="ot">&lt;-</span> <span class="fu">crossprod</span>(yy, yy <span class="sc">*</span> resp[[tt]][, k]) <span class="co"># YY^T * D * YY</span></span>
+<span id="cb42-9"><a href="the-method.html#cb42-9" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb42-10"><a href="the-method.html#cb42-10" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb42-11"><a href="the-method.html#cb42-11" aria-hidden="true" tabindex="-1"></a>  mat_sum_smoothed <span class="ot">&lt;-</span> <span class="fu">apply</span>(</span>
+<span id="cb42-12"><a href="the-method.html#cb42-12" aria-hidden="true" tabindex="-1"></a>    mat_sum, <span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>, <span class="cf">function</span>(x) stats<span class="sc">::</span><span class="fu">ksmooth</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(x), x, <span class="at">bandwidth =</span> hSigma)<span class="sc">$</span>y</span>
+<span id="cb42-13"><a href="the-method.html#cb42-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb42-14"><a href="the-method.html#cb42-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (j <span class="cf">in</span> <span class="fu">seq</span>(d))</span>
+<span id="cb42-15"><a href="the-method.html#cb42-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (l <span class="cf">in</span> <span class="fu">seq</span>(d))</span>
+<span id="cb42-16"><a href="the-method.html#cb42-16" aria-hidden="true" tabindex="-1"></a>      Sigma[, , j, l] <span class="ot">&lt;-</span> mat_sum_smoothed[, , j, l] <span class="sc">/</span> resp_sum_smooth</span></code></pre></div>
+</div>
+</div>
+<div id="trying-out-the-method" class="section level2 hasAnchor" number="3.4">
+<h2><span class="header-section-number">3.4</span> Trying out the method<a href="the-method.html#trying-out-the-method" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb43"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb43-1"><a href="the-method.html#cb43-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <a href='the-method.html#kernel_em'>kernel_em</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y, <span class="at">K =</span> <span class="dv">2</span>, <span class="at">hmu =</span> <span class="dv">5</span>, <span class="at">hSigma =</span> <span class="dv">5</span>, <span class="at">hpi =</span> <span class="dv">5</span>, <span class="at">num_iter =</span> <span class="dv">20</span>)</span>
+<span id="cb43-2"><a href="the-method.html#cb43-2" aria-hidden="true" tabindex="-1"></a>zest <span class="ot">&lt;-</span> fit<span class="sc">$</span>resp <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="sc">~</span> <span class="fu">max.col</span>(.x))</span>
+<span id="cb43-3"><a href="the-method.html#cb43-3" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data_and_model'>plot_data_and_model</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y, zest, fit<span class="sc">$</span>mu)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<div class="sourceCode" id="cb44"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb44-1"><a href="the-method.html#cb44-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <a href='the-method.html#kernel_em'>kernel_em</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y, <span class="at">K =</span> <span class="dv">2</span>, <span class="at">hmu =</span> <span class="dv">50</span>, <span class="at">hSigma =</span> <span class="dv">50</span>, <span class="at">hpi =</span> <span class="dv">50</span>, <span class="at">num_iter =</span> <span class="dv">10</span>)</span>
+<span id="cb44-2"><a href="the-method.html#cb44-2" aria-hidden="true" tabindex="-1"></a>zest <span class="ot">&lt;-</span> fit<span class="sc">$</span>resp <span class="sc">%&gt;%</span> purrr<span class="sc">::</span><span class="fu">map</span>(<span class="sc">~</span> <span class="fu">max.col</span>(.x))</span>
+<span id="cb44-3"><a href="the-method.html#cb44-3" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data_and_model'>plot_data_and_model</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y, zest, fit<span class="sc">$</span>mu)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="the-model.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="conclude.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

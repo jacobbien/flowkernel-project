@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 The model | Creating the flowkernel R package</title>
+  <meta name="description" content="2 The model | Creating the flowkernel R package" />
+  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 The model | Creating the flowkernel R package" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 The model | Creating the flowkernel R package" />
+  
+  
+  
+
+<meta name="author" content="Jacob Bien" />
+
+
+<meta name="date" content="2023-03-06" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="the-method.html"/>
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
+
+
+<style type="text/css">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+<ul>
+<li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#description-file"><i class="fa fa-check"></i><b>1.1</b> DESCRIPTION file</a></li>
+<li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#package-level-documentation"><i class="fa fa-check"></i><b>1.2</b> Package-level documentation</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="the-model.html"><a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
+<ul>
+<li class="chapter" data-level="2.1" data-path="the-model.html"><a href="the-model.html#generating-data-from-model"><i class="fa fa-check"></i><b>2.1</b> Generating data from model</a></li>
+<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-data-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.2</b> Visualizing data in one-dimensional case</a></li>
+<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model in one-dimensional case</a></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="the-method.html"><a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
+<ul>
+<li class="chapter" data-level="3.1" data-path="the-method.html"><a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a></li>
+<li class="chapter" data-level="3.2" data-path="the-method.html"><a href="the-method.html#e-step"><i class="fa fa-check"></i><b>3.2</b> E-step</a></li>
+<li class="chapter" data-level="3.3" data-path="the-method.html"><a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
+<ul>
+<li class="chapter" data-level="3.3.1" data-path="the-method.html"><a href="the-method.html#m-step-pi"><i class="fa fa-check"></i><b>3.3.1</b> M-step <span class="math inline">\(\pi\)</span></a></li>
+<li class="chapter" data-level="3.3.2" data-path="the-method.html"><a href="the-method.html#m-step-mu"><i class="fa fa-check"></i><b>3.3.2</b> M-step <span class="math inline">\(\mu\)</span></a></li>
+<li class="chapter" data-level="3.3.3" data-path="the-method.html"><a href="the-method.html#m-step-sigma"><i class="fa fa-check"></i><b>3.3.3</b> M-step <span class="math inline">\(\Sigma\)</span></a></li>
+</ul></li>
+<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
+</ul></li>
+<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Creating the <code>flowkernel</code> R package</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="the-model" class="section level1 hasAnchor" number="2">
+<h1><span class="header-section-number">2</span> The model<a href="the-model.html#the-model" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<p>Our interest is in modeling a sequence of scatterplots measured over time. That is, we observe</p>
+<p><span class="math inline">\(Y_{it}\in\mathbb R^d\)</span> for <span class="math inline">\(i=1,\ldots,n_t\)</span> and <span class="math inline">\(t=1,\ldots,T\)</span>.</p>
+<p>In continuous-time flow cytometry data, we notice that this data has two properties:</p>
+<ol style="list-style-type: decimal">
+<li><p>Each scatterplot looks approximately like a mixture of Gaussians.</p></li>
+<li><p>The general clustering structure seen in each scatterplot is slowly varying over time.</p></li>
+</ol>
+<p>To model data like this, we wish to fit a smoothly-varying mixture of Gaussians model:</p>
+<p><span class="math display">\[
+Y_{it}|\{Z_{it}=k\}\sim N_d(\mu_{kt},\Sigma_{kt})\qquad\mathbb P(Z_{ik}=k)=\pi_{kt}
+\]</span>
+where <span class="math inline">\((\mu_{kt},\Sigma_{kt},\pi_{kt})\)</span> are slowly varying parameters.</p>
+<p>It will be useful to have data generated from this model for testing purposes, so we begin by defining a function for simulating from this model.</p>
+<div id="generating-data-from-model" class="section level2 hasAnchor" number="2.1">
+<h2><span class="header-section-number">2.1</span> Generating data from model<a href="the-model.html#generating-data-from-model" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="the-model.html#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Generate data from smoothly-varying mixture of Gaussians model</span></span>
+<span id="cb4-2"><a href="the-model.html#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-3"><a href="the-model.html#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; The smoothly-varying mixture of Gaussians model is defined as follows:</span></span>
+<span id="cb4-4"><a href="the-model.html#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-5"><a href="the-model.html#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; At time t there are n_t points generated as follows:</span></span>
+<span id="cb4-6"><a href="the-model.html#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-7"><a href="the-model.html#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Y_{it}|\{Z_{it}=k\} ~ N_d(mu_{kt},Sigma_{kt})</span></span>
+<span id="cb4-8"><a href="the-model.html#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; where</span></span>
+<span id="cb4-9"><a href="the-model.html#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; P(Z_{ik}=k)=pi_{kt}</span></span>
+<span id="cb4-10"><a href="the-model.html#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; and the parameters (mu_t, Sigma_t, pi_t) are all slowly varying in time.</span></span>
+<span id="cb4-11"><a href="the-model.html#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-12"><a href="the-model.html#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; This function generates Y and Z.</span></span>
+<span id="cb4-13"><a href="the-model.html#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb4-14"><a href="the-model.html#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param mu_function a function that maps a vector of times to a T-by-K-by-d</span></span>
+<span id="cb4-15"><a href="the-model.html#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; array of means</span></span>
+<span id="cb4-16"><a href="the-model.html#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param Sigma_function a function that maps a vector of times to a</span></span>
+<span id="cb4-17"><a href="the-model.html#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; T-K-by-d-by-d array of covariance matrices</span></span>
+<span id="cb4-18"><a href="the-model.html#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param pi_function a function that maps a vector of times to a T-by-K vector</span></span>
+<span id="cb4-19"><a href="the-model.html#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; of probabilities</span></span>
+<span id="cb4-20"><a href="the-model.html#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param num_points a T vector of integers giving the number of points n_t to</span></span>
+<span id="cb4-21"><a href="the-model.html#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; generate at each time point t.</span></span>
+<span id="cb4-22"><a href="the-model.html#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb4-23"><a href="the-model.html#cb4-23" aria-hidden="true" tabindex="-1"></a><span id='generate_smooth_gauss_mix'>generate_smooth_gauss_mix</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(mu_function,</span>
+<span id="cb4-24"><a href="the-model.html#cb4-24" aria-hidden="true" tabindex="-1"></a>                                      Sigma_function,</span>
+<span id="cb4-25"><a href="the-model.html#cb4-25" aria-hidden="true" tabindex="-1"></a>                                      pi_function,</span>
+<span id="cb4-26"><a href="the-model.html#cb4-26" aria-hidden="true" tabindex="-1"></a>                                      num_points) {</span>
+<span id="cb4-27"><a href="the-model.html#cb4-27" aria-hidden="true" tabindex="-1"></a>  times <span class="ot">&lt;-</span> <span class="fu">seq_along</span>(num_points)</span>
+<span id="cb4-28"><a href="the-model.html#cb4-28" aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">mu_function</span>(times)</span>
+<span id="cb4-29"><a href="the-model.html#cb4-29" aria-hidden="true" tabindex="-1"></a>  Sigma <span class="ot">&lt;-</span> <span class="fu">Sigma_function</span>(times)</span>
+<span id="cb4-30"><a href="the-model.html#cb4-30" aria-hidden="true" tabindex="-1"></a>  pi <span class="ot">&lt;-</span> <span class="fu">pi_function</span>(times)</span>
+<span id="cb4-31"><a href="the-model.html#cb4-31" aria-hidden="true" tabindex="-1"></a>  K <span class="ot">&lt;-</span> <span class="fu">ncol</span>(pi) <span class="co"># number of components</span></span>
+<span id="cb4-32"><a href="the-model.html#cb4-32" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">dim</span>(mu)[<span class="dv">3</span>]</span>
+<span id="cb4-33"><a href="the-model.html#cb4-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dimnames</span>(mu) <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="cn">NULL</span>, <span class="fu">paste0</span>(<span class="st">&quot;cluster&quot;</span>, <span class="dv">1</span><span class="sc">:</span>K), <span class="cn">NULL</span>)</span>
+<span id="cb4-34"><a href="the-model.html#cb4-34" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb4-35"><a href="the-model.html#cb4-35" aria-hidden="true" tabindex="-1"></a>  z <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># z[[t]][i] = class of point i at time t</span></span>
+<span id="cb4-36"><a href="the-model.html#cb4-36" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> <span class="fu">list</span>() <span class="co"># y[[t]][i,] = d-vector of point i at time t</span></span>
+<span id="cb4-37"><a href="the-model.html#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (t <span class="cf">in</span> times) {</span>
+<span id="cb4-38"><a href="the-model.html#cb4-38" aria-hidden="true" tabindex="-1"></a>    z[[t]] <span class="ot">&lt;-</span> <span class="fu">apply</span>(stats<span class="sc">::</span><span class="fu">rmultinom</span>(num_points[t], <span class="dv">1</span>, pi[t, ]) <span class="sc">==</span> <span class="dv">1</span>, <span class="dv">2</span>, which)</span>
+<span id="cb4-39"><a href="the-model.html#cb4-39" aria-hidden="true" tabindex="-1"></a>    y[[t]] <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA</span>, num_points[t], d)</span>
+<span id="cb4-40"><a href="the-model.html#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>K) {</span>
+<span id="cb4-41"><a href="the-model.html#cb4-41" aria-hidden="true" tabindex="-1"></a>      ii <span class="ot">&lt;-</span> z[[t]] <span class="sc">==</span> k <span class="co"># index of points in component k at time t</span></span>
+<span id="cb4-42"><a href="the-model.html#cb4-42" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (<span class="fu">sum</span>(ii) <span class="sc">==</span> <span class="dv">0</span>) <span class="cf">next</span></span>
+<span id="cb4-43"><a href="the-model.html#cb4-43" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> (d <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb4-44"><a href="the-model.html#cb4-44" aria-hidden="true" tabindex="-1"></a>        y[[t]][ii, ] <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">rnorm</span>(<span class="at">n =</span> <span class="fu">sum</span>(ii),</span>
+<span id="cb4-45"><a href="the-model.html#cb4-45" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">mean =</span> mu[t, k, ],</span>
+<span id="cb4-46"><a href="the-model.html#cb4-46" aria-hidden="true" tabindex="-1"></a>                                                   <span class="at">sd =</span> Sigma[t, k, , ])</span>
+<span id="cb4-47"><a href="the-model.html#cb4-47" aria-hidden="true" tabindex="-1"></a>      <span class="cf">else</span></span>
+<span id="cb4-48"><a href="the-model.html#cb4-48" aria-hidden="true" tabindex="-1"></a>        y[[t]][ii, ] <span class="ot">&lt;-</span> mvtnorm<span class="sc">::</span><span class="fu">rmvnorm</span>(<span class="at">n =</span> <span class="fu">sum</span>(ii),</span>
+<span id="cb4-49"><a href="the-model.html#cb4-49" aria-hidden="true" tabindex="-1"></a>                                                       <span class="at">mean =</span> mu[t, k, ],</span>
+<span id="cb4-50"><a href="the-model.html#cb4-50" aria-hidden="true" tabindex="-1"></a>                                                       <span class="at">sigma =</span> Sigma[t, k, , ])</span>
+<span id="cb4-51"><a href="the-model.html#cb4-51" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-52"><a href="the-model.html#cb4-52" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb4-53"><a href="the-model.html#cb4-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">y =</span> y, <span class="at">z =</span> z, <span class="at">mu =</span> mu, <span class="at">Sigma =</span> Sigma, <span class="at">pi =</span> pi)</span>
+<span id="cb4-54"><a href="the-model.html#cb4-54" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>We have used two packages in this function, so let’s add these into our package.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="the-model.html#cb5-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;stats&quot;</span>)</span>
+<span id="cb5-2"><a href="the-model.html#cb5-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;mvtnorm&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;stats&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `stats::fun()`</code></pre>
+<pre><code>## ✔ Adding &#39;mvtnorm&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `mvtnorm::fun()`</code></pre>
+<p>Let’s generate an example in the <span class="math inline">\(d=1\)</span> case:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="the-model.html#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb8-2"><a href="the-model.html#cb8-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="dv">1</span>; K <span class="ot">&lt;-</span> <span class="dv">2</span>; ntimes <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb8-3"><a href="the-model.html#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="the-model.html#cb8-4" aria-hidden="true" tabindex="-1"></a>ex1 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb8-5"><a href="the-model.html#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">mu_function =</span> <span class="cf">function</span>(times) {</span>
+<span id="cb8-6"><a href="the-model.html#cb8-6" aria-hidden="true" tabindex="-1"></a>    mu <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(ntimes, K, d))</span>
+<span id="cb8-7"><a href="the-model.html#cb8-7" aria-hidden="true" tabindex="-1"></a>    mu[, , <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">sin</span>(<span class="dv">2</span> <span class="sc">*</span> pi <span class="sc">*</span> times <span class="sc">/</span> <span class="dv">30</span>), <span class="dv">2</span>)</span>
+<span id="cb8-8"><a href="the-model.html#cb8-8" aria-hidden="true" tabindex="-1"></a>    mu</span>
+<span id="cb8-9"><a href="the-model.html#cb8-9" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-10"><a href="the-model.html#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">Sigma_function =</span> <span class="cf">function</span>(times) {</span>
+<span id="cb8-11"><a href="the-model.html#cb8-11" aria-hidden="true" tabindex="-1"></a>    Sigma <span class="ot">&lt;-</span> <span class="fu">array</span>(<span class="cn">NA</span>, <span class="fu">c</span>(ntimes, K, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb8-12"><a href="the-model.html#cb8-12" aria-hidden="true" tabindex="-1"></a>    Sigma[, , <span class="dv">1</span>, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fl">0.25</span></span>
+<span id="cb8-13"><a href="the-model.html#cb8-13" aria-hidden="true" tabindex="-1"></a>    Sigma</span>
+<span id="cb8-14"><a href="the-model.html#cb8-14" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-15"><a href="the-model.html#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">pi_function =</span> <span class="cf">function</span>(times) {</span>
+<span id="cb8-16"><a href="the-model.html#cb8-16" aria-hidden="true" tabindex="-1"></a>    pi1 <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.2</span>, <span class="fl">0.8</span>, <span class="at">length=</span><span class="fu">length</span>(times))</span>
+<span id="cb8-17"><a href="the-model.html#cb8-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(pi1, <span class="dv">1</span> <span class="sc">-</span> pi1)</span>
+<span id="cb8-18"><a href="the-model.html#cb8-18" aria-hidden="true" tabindex="-1"></a>  },</span>
+<span id="cb8-19"><a href="the-model.html#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">num_points =</span> <span class="fu">rep</span>(<span class="dv">40</span>, ntimes)</span>
+<span id="cb8-20"><a href="the-model.html#cb8-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-21"><a href="the-model.html#cb8-21" aria-hidden="true" tabindex="-1"></a>ex1<span class="sc">$</span>dat <span class="ot">&lt;-</span> <a href='the-model.html#generate_smooth_gauss_mix'>generate_smooth_gauss_mix</a>(ex1<span class="sc">$</span>mu_function,</span>
+<span id="cb8-22"><a href="the-model.html#cb8-22" aria-hidden="true" tabindex="-1"></a>                                     ex1<span class="sc">$</span>Sigma_function,</span>
+<span id="cb8-23"><a href="the-model.html#cb8-23" aria-hidden="true" tabindex="-1"></a>                                     ex1<span class="sc">$</span>pi_function,</span>
+<span id="cb8-24"><a href="the-model.html#cb8-24" aria-hidden="true" tabindex="-1"></a>                                     ex1<span class="sc">$</span>num_points)</span></code></pre></div>
+</div>
+<div id="visualizing-data-in-one-dimensional-case" class="section level2 hasAnchor" number="2.2">
+<h2><span class="header-section-number">2.2</span> Visualizing data in one-dimensional case<a href="the-model.html#visualizing-data-in-one-dimensional-case" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>Let’s make a function for visualizing the data in the one-dimensional case.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="the-model.html#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr) <span class="co"># we&#39;ll be using the pipe in this document</span></span></code></pre></div>
+<p>The function will take as input the following argument:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="the-model.html#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do"><span id='y-param'>###&quot;y-param&quot;###</span></span></span>
+<span id="cb10-2"><a href="the-model.html#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param y length T list with `y[[t]]` being a n_t-by-d matrix</span></span></code></pre></div>
+<p>We define this bit of documentation in its own code chunk so that it can be easily reused since multiple functions in the package take it as input.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="the-model.html#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Plot raw data when `d = 1`</span></span>
+<span id="cb11-2"><a href="the-model.html#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb11-3"><a href="the-model.html#cb11-3" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#y-param'>&lt;&lt;y-param&gt;&gt;</a></span>
+<span id="cb11-4"><a href="the-model.html#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb11-5"><a href="the-model.html#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @export</span></span>
+<span id="cb11-6"><a href="the-model.html#cb11-6" aria-hidden="true" tabindex="-1"></a><span id='plot_data'>plot_data</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(y) {</span>
+<span id="cb11-7"><a href="the-model.html#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">ncol</span>(y[[<span class="dv">1</span>]]) <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="the-model.html#cb11-8" aria-hidden="true" tabindex="-1"></a>  purrr<span class="sc">::</span><span class="fu">map_dfr</span>(y, <span class="sc">~</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">y =</span> .x), <span class="at">.id =</span> <span class="st">&quot;time&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-9"><a href="the-model.html#cb11-9" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">time =</span> <span class="fu">as.numeric</span>(.data<span class="sc">$</span>time)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-10"><a href="the-model.html#cb11-10" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> .data<span class="sc">$</span>time, <span class="at">y =</span> .data<span class="sc">$</span>y)) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="the-model.html#cb11-11" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb11-12"><a href="the-model.html#cb11-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>We’ve used some functions from other packages, so let’s include those in our package:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="the-model.html#cb12-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_pipe</span>()</span>
+<span id="cb12-2"><a href="the-model.html#cb12-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;purrr&quot;</span>)</span>
+<span id="cb12-3"><a href="the-model.html#cb12-3" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;tibble&quot;</span>)</span>
+<span id="cb12-4"><a href="the-model.html#cb12-4" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;dplyr&quot;</span>)</span>
+<span id="cb12-5"><a href="the-model.html#cb12-5" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;ggplot2&quot;</span>)</span>
+<span id="cb12-6"><a href="the-model.html#cb12-6" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_import_from</span>(<span class="st">&quot;rlang&quot;</span>, <span class="st">&quot;.data&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;magrittr&#39; to Imports field in DESCRIPTION
+## ✔ Writing &#39;R/utils-pipe.R&#39;
+## • Run `devtools::document()` to update &#39;NAMESPACE&#39;</code></pre>
+<pre><code>## ✔ Adding &#39;purrr&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `purrr::fun()`</code></pre>
+<pre><code>## ✔ Adding &#39;tibble&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `tibble::fun()`</code></pre>
+<pre><code>## ✔ Adding &#39;dplyr&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `dplyr::fun()`</code></pre>
+<pre><code>## ✔ Adding &#39;ggplot2&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `ggplot2::fun()`</code></pre>
+<pre><code>## ✔ Adding &#39;rlang&#39; to Imports field in DESCRIPTION
+## ✔ Adding &#39;@importFrom rlang .data&#39; to &#39;R/flowkernel-package.R&#39;
+## ✔ Writing &#39;NAMESPACE&#39;</code></pre>
+<p>Let’s look at our example data using this plotting function:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="the-model.html#cb19-1" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data'>plot_data</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+<div id="visualizing-data-and-model-in-one-dimensional-case" class="section level2 hasAnchor" number="2.3">
+<h2><span class="header-section-number">2.3</span> Visualizing data and model in one-dimensional case<a href="the-model.html#visualizing-data-and-model-in-one-dimensional-case" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<p>We’ll also want a function for plotting the data with points colored by true (or estimated) cluster. And it will be convenient to also be able to superimpose the true (or estimated) means. The next function does this:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="the-model.html#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; Plot data colored by cluster assignment with cluster means when `d=1`</span></span>
+<span id="cb20-2"><a href="the-model.html#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb20-3"><a href="the-model.html#cb20-3" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#y-param'>&lt;&lt;y-param&gt;&gt;</a></span>
+<span id="cb20-4"><a href="the-model.html#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param z a length T list with `z[[t]]` being a n_t vector of cluster assignments</span></span>
+<span id="cb20-5"><a href="the-model.html#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="co">#&#39; @param mu a T-by-K-by-d array of means</span></span>
+<span id="cb20-6"><a href="the-model.html#cb20-6" aria-hidden="true" tabindex="-1"></a><span id='plot_data_and_model'>plot_data_and_model</span> <span class="ot">&lt;-</span> <span class="cf">function</span>(y, z, mu) {</span>
+<span id="cb20-7"><a href="the-model.html#cb20-7" aria-hidden="true" tabindex="-1"></a>  dat_df <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_dfr</span>(z, y, <span class="sc">~</span> tibble<span class="sc">::</span><span class="fu">tibble</span>(<span class="at">z =</span> <span class="fu">as.factor</span>(.x), <span class="at">y =</span> .y),</span>
+<span id="cb20-8"><a href="the-model.html#cb20-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">.id =</span> <span class="st">&quot;time&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb20-9"><a href="the-model.html#cb20-9" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">time =</span> <span class="fu">as.numeric</span>(.data<span class="sc">$</span>time))</span>
+<span id="cb20-10"><a href="the-model.html#cb20-10" aria-hidden="true" tabindex="-1"></a>  means_df <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>(mu[, , <span class="dv">1</span>]) <span class="sc">%&gt;%</span></span>
+<span id="cb20-11"><a href="the-model.html#cb20-11" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">time =</span> dplyr<span class="sc">::</span><span class="fu">row_number</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb20-12"><a href="the-model.html#cb20-12" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="sc">-</span>.data<span class="sc">$</span>time, <span class="at">names_to =</span> <span class="st">&quot;cluster&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;mean&quot;</span>)</span>
+<span id="cb20-13"><a href="the-model.html#cb20-13" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb20-14"><a href="the-model.html#cb20-14" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_point</span>(</span>
+<span id="cb20-15"><a href="the-model.html#cb20-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> dat_df,</span>
+<span id="cb20-16"><a href="the-model.html#cb20-16" aria-hidden="true" tabindex="-1"></a>      ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> .data<span class="sc">$</span>time, <span class="at">y =</span> .data<span class="sc">$</span>y, <span class="at">color =</span> .data<span class="sc">$</span>z), <span class="at">alpha =</span> <span class="fl">0.2</span></span>
+<span id="cb20-17"><a href="the-model.html#cb20-17" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">+</span></span>
+<span id="cb20-18"><a href="the-model.html#cb20-18" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_line</span>(</span>
+<span id="cb20-19"><a href="the-model.html#cb20-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> means_df,</span>
+<span id="cb20-20"><a href="the-model.html#cb20-20" aria-hidden="true" tabindex="-1"></a>      ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> .data<span class="sc">$</span>time, <span class="at">y =</span> .data<span class="sc">$</span>mean, <span class="at">group =</span> .data<span class="sc">$</span>cluster)</span>
+<span id="cb20-21"><a href="the-model.html#cb20-21" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb20-22"><a href="the-model.html#cb20-22" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<p>We used a function from <code>tidyr</code>, so let’s include this package:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="the-model.html#cb21-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_package</span>(<span class="st">&quot;tidyr&quot;</span>)</span></code></pre></div>
+<pre><code>## ✔ Adding &#39;tidyr&#39; to Imports field in DESCRIPTION
+## • Refer to functions with `tidyr::fun()`</code></pre>
+<p>For now we can use this to visualize the true model, although later this will be useful for visualizing the estimated model.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="the-model.html#cb23-1" aria-hidden="true" tabindex="-1"></a><a href='the-model.html#plot_data_and_model'>plot_data_and_model</a>(ex1<span class="sc">$</span>dat<span class="sc">$</span>y, ex1<span class="sc">$</span>dat<span class="sc">$</span>z, ex1<span class="sc">$</span>dat<span class="sc">$</span>mu)</span></code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-12-1.png" width="672" /></p>
+
+</div>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="the-method.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"whatsapp": false,
+"all": ["facebook", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"view": {
+"link": null,
+"text": null
+},
+"download": null,
+"search": {
+"engine": "fuse",
+"options": null
+},
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/latest.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
