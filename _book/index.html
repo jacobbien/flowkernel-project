@@ -1,62 +1,37 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
 <head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>Creating the flowkernel R package</title>
-  <meta name="description" content="Creating the flowkernel R package" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="Creating the flowkernel R package" />
-  <meta property="og:type" content="book" />
-  
-  
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Creating the flowkernel R package" />
-  
-  
-  
-
-<meta name="author" content="Jacob Bien" />
-
-
-<meta name="date" content="2023-03-06" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  
-  
-
-<link rel="next" href="the-model.html"/>
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Creating the flowkernel R package</title>
+<meta name="description" content="Creating the flowkernel R package">
+<meta name="generator" content="bookdown 0.39 and GitBook 2.6.7">
+<meta property="og:title" content="Creating the flowkernel R package">
+<meta property="og:type" content="book">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Creating the flowkernel R package">
+<meta name="author" content="Jacob Bien, Farhad de Sousa">
+<meta name="date" content="2024-06-24">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="next" href="the-model.html">
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script><link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/plotly-binding-4.10.4/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script><style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -118,10 +93,14 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
-
-
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    </style>
 </head>
-
 <body>
 
 
@@ -129,37 +108,48 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
 
     <div class="book-summary">
-      <nav role="navigation">
-
-<ul class="summary">
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+      <nav role="navigation"><ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html">
+<a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#description-file"><i class="fa fa-check"></i><b>1.1</b> DESCRIPTION file</a></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#package-level-documentation"><i class="fa fa-check"></i><b>1.2</b> Package-level documentation</a></li>
-</ul></li>
-<li class="chapter" data-level="2" data-path="the-model.html"><a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
+</ul>
+</li>
+<li class="chapter" data-level="2" data-path="the-model.html">
+<a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
 <ul>
 <li class="chapter" data-level="2.1" data-path="the-model.html"><a href="the-model.html#generating-data-from-model"><i class="fa fa-check"></i><b>2.1</b> Generating data from model</a></li>
-<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-data-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.2</b> Visualizing data in one-dimensional case</a></li>
-<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model in one-dimensional case</a></li>
-</ul></li>
-<li class="chapter" data-level="3" data-path="the-method.html"><a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
+<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-the-raw-data"><i class="fa fa-check"></i><b>2.2</b> Visualizing the raw data:</a></li>
+<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model</a></li>
+</ul>
+</li>
+<li class="chapter" data-level="3" data-path="the-method.html">
+<a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="the-method.html"><a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a></li>
+<li class="chapter" data-level="3.1" data-path="the-method.html">
+<a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="the-method.html"><a href="the-method.html#constant-initialization"><i class="fa fa-check"></i><b>3.1.1</b> Constant Initialization</a></li>
+<li class="chapter" data-level="3.1.2" data-path="the-method.html"><a href="the-method.html#bayesian-initialization"><i class="fa fa-check"></i><b>3.1.2</b> Bayesian Initialization</a></li>
+</ul>
+</li>
 <li class="chapter" data-level="3.2" data-path="the-method.html"><a href="the-method.html#e-step"><i class="fa fa-check"></i><b>3.2</b> E-step</a></li>
-<li class="chapter" data-level="3.3" data-path="the-method.html"><a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
+<li class="chapter" data-level="3.3" data-path="the-method.html">
+<a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
 <ul>
 <li class="chapter" data-level="3.3.1" data-path="the-method.html"><a href="the-method.html#m-step-pi"><i class="fa fa-check"></i><b>3.3.1</b> M-step <span class="math inline">\(\pi\)</span></a></li>
 <li class="chapter" data-level="3.3.2" data-path="the-method.html"><a href="the-method.html#m-step-mu"><i class="fa fa-check"></i><b>3.3.2</b> M-step <span class="math inline">\(\mu\)</span></a></li>
 <li class="chapter" data-level="3.3.3" data-path="the-method.html"><a href="the-method.html#m-step-sigma"><i class="fa fa-check"></i><b>3.3.3</b> M-step <span class="math inline">\(\Sigma\)</span></a></li>
-</ul></li>
-<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
-</ul></li>
-<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
 </ul>
-
-      </nav>
-    </div>
+</li>
+<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
+</ul>
+</li>
+<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
+<li class="chapter" data-level="5" data-path="flowkernel-project.html"><a href="flowkernel-project.html"><i class="fa fa-check"></i><b>5</b> <code>flowkernel</code> project</a></li>
+</ul></nav>
+</div>
 
     <div class="book-body">
       <div class="body-inner">
@@ -172,65 +162,62 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <div class="page-wrapper" tabindex="-1" role="main">
           <div class="page-inner">
 
-            <section class="normal" id="section-">
-<div id="header">
+            <section class="normal" id="section-"><div id="header">
 <h1 class="title">Creating the <code>flowkernel</code> R package</h1>
-<p class="author"><em>Jacob Bien</em></p>
-<p class="date"><em>2023-03-06</em></p>
+<p class="author"><em>Jacob Bien, Farhad de Sousa</em></p>
+<p class="date"><em>2024-06-24</em></p>
 </div>
 <div id="preliminaries" class="section level1 hasAnchor" number="1">
-<h1><span class="header-section-number">1</span> Preliminaries<a href="index.html#preliminaries" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+<h1>
+<span class="header-section-number">1</span> Preliminaries<a href="index.html#preliminaries" class="anchor-section" aria-label="Anchor link to header"></a>
+</h1>
 <p>This document uses <a href="https://jacobbien.github.io/litr-project/">litr</a> to define the <code>flowkernel</code> R package. When the <code>index.Rmd</code> file is rendered, the R package is created along with the bookdown you are reading. To do so in RStudio, you can simply open <code>index.Rmd</code> and press “Knit” to render the bookdown (and open <code>_book/index.html</code> to see the result). More generally, in a console you can run the following:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" aria-hidden="true" tabindex="-1"></a>litr<span class="sc">::</span><span class="fu">render</span>(<span class="st">&quot;index.Rmd&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="index.html#cb1-1" tabindex="-1"></a>litr<span class="sc">::</span><span class="fu">render</span>(<span class="st">"index.Rmd"</span>)</span></code></pre></div>
 <div id="description-file" class="section level2 hasAnchor" number="1.1">
-<h2><span class="header-section-number">1.1</span> DESCRIPTION file<a href="index.html#description-file" class="anchor-section" aria-label="Anchor link to header"></a></h2>
+<h2>
+<span class="header-section-number">1.1</span> DESCRIPTION file<a href="index.html#description-file" class="anchor-section" aria-label="Anchor link to header"></a>
+</h2>
 <p>We start by specifying some basic information for the description file:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="index.html#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
-<span id="cb2-2"><a href="index.html#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">&quot;.&quot;</span>,</span>
-<span id="cb2-3"><a href="index.html#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
-<span id="cb2-4"><a href="index.html#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
-<span id="cb2-5"><a href="index.html#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">&quot;0.0.0.9000&quot;</span>,</span>
-<span id="cb2-6"><a href="index.html#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">&quot;Smoothly Varying Mixture of Gaussians Modeling&quot;</span>,</span>
-<span id="cb2-7"><a href="index.html#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">&quot;This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.&quot;</span>,</span>
-<span id="cb2-8"><a href="index.html#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
-<span id="cb2-9"><a href="index.html#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">&quot;Jacob&quot;</span>,</span>
-<span id="cb2-10"><a href="index.html#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">&quot;Bien&quot;</span>,</span>
-<span id="cb2-11"><a href="index.html#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">&quot;jbien@usc.edu&quot;</span>,</span>
-<span id="cb2-12"><a href="index.html#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">&quot;aut&quot;</span>, <span class="st">&quot;cre&quot;</span>)</span>
-<span id="cb2-13"><a href="index.html#cb2-13" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb2-14"><a href="index.html#cb2-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-15"><a href="index.html#cb2-15" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-16"><a href="index.html#cb2-16" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">&quot;F. Last&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="index.html#cb2-1" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(</span>
+<span id="cb2-2"><a href="index.html#cb2-2" tabindex="-1"></a>  <span class="at">path =</span> <span class="st">"."</span>,</span>
+<span id="cb2-3"><a href="index.html#cb2-3" tabindex="-1"></a>  <span class="at">fields =</span> <span class="fu">list</span>(</span>
+<span id="cb2-4"><a href="index.html#cb2-4" tabindex="-1"></a>    <span class="at">Package =</span> params<span class="sc">$</span>package_name,</span>
+<span id="cb2-5"><a href="index.html#cb2-5" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">"0.0.0.9000"</span>,</span>
+<span id="cb2-6"><a href="index.html#cb2-6" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">"Smoothly Varying Mixture of Gaussians Modeling"</span>,</span>
+<span id="cb2-7"><a href="index.html#cb2-7" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model."</span>,</span>
+<span id="cb2-8"><a href="index.html#cb2-8" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
+<span id="cb2-9"><a href="index.html#cb2-9" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"Jacob"</span>,</span>
+<span id="cb2-10"><a href="index.html#cb2-10" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"Bien"</span>,</span>
+<span id="cb2-11"><a href="index.html#cb2-11" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"jbien@usc.edu"</span>,</span>
+<span id="cb2-12"><a href="index.html#cb2-12" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
+<span id="cb2-13"><a href="index.html#cb2-13" tabindex="-1"></a>      )</span>
+<span id="cb2-14"><a href="index.html#cb2-14" tabindex="-1"></a>  )</span>
+<span id="cb2-15"><a href="index.html#cb2-15" tabindex="-1"></a>)</span>
+<span id="cb2-16"><a href="index.html#cb2-16" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
 </div>
 <div id="package-level-documentation" class="section level2 hasAnchor" number="1.2">
-<h2><span class="header-section-number">1.2</span> Package-level documentation<a href="index.html#package-level-documentation" class="anchor-section" aria-label="Anchor link to header"></a></h2>
-<p>Let’s include some package-level documentation. Besides being user-friendly, it’s also needed because we’ll be using “import from” later.</p>
-<pre class="package_doc"><code>#&#39; Smoothly Varying Mixture of Gaussians Modeling
-#&#39;
-#&#39; This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.
-#&#39; 
-#&#39; @docType package</code></pre>
+<h2>
+<span class="header-section-number">1.2</span> Package-level documentation<a href="index.html#package-level-documentation" class="anchor-section" aria-label="Anchor link to header"></a>
+</h2>
+<p>Let’s include some package-level documentation. Besides being user-friendly, it’s also needed because we’ll be using “import from” later. Also, notice that we are importing all of <code>mclust</code>. This is because of <a href="https://stackoverflow.com/questions/46676598/use-a-function-in-an-r-package-that-depends-on-another-different-function">this error</a> involving <code>mclustBIC()</code>, which is called when we call <code>Mclust()</code>.</p>
+<pre class="package_doc"><code>#' Smoothly Varying Mixture of Gaussians Modeling
+#'
+#' This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.
+#' 
+#' @docType package
+#' @import mclust</code></pre>
 
 </div>
 </div>
             </section>
-
-          </div>
+</div>
         </div>
       </div>
 
 <a href="the-model.html" class="navigation navigation-next navigation-unique" aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script><script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script><script src="libs/gitbook-2.6.7/js/plugin-search.js"></script><script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script><script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script><script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script><script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script><script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script><script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
@@ -271,10 +258,7 @@ gitbook.start({
 }
 });
 });
-</script>
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
+</script><!-- dynamically load mathjax for compatibility with self-contained --><script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -288,5 +272,4 @@ gitbook.start({
   })();
 </script>
 </body>
-
 </html>

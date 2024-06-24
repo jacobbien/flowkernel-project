@@ -3,10 +3,12 @@ description-file
 package-level-documentation
 the-model
 generating-data-from-model
-visualizing-data-in-one-dimensional-case
-visualizing-data-and-model-in-one-dimensional-case
+visualizing-the-raw-data
+visualizing-data-and-model
 the-method
 initialization
+constant-initialization
+bayesian-initialization
 e-step
 m-step
 m-step-pi
@@ -14,3 +16,4 @@ m-step-mu
 m-step-sigma
 trying-out-the-method
 conclude
+flowkernel-project

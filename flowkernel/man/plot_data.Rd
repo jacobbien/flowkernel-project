@@ -2,7 +2,7 @@
 % Please edit documentation in _main.Rmd.
 \name{plot_data}
 \alias{plot_data}
-\title{Plot raw data when \code{d = 1}}
+\title{Plot raw data}
 \usage{
 plot_data(y)
 }
@@ -10,5 +10,5 @@ plot_data(y)
 \item{y}{length T list with \code{y[[t]]} being a n_t-by-d matrix}
 }
 \description{
-Plot raw data when \code{d = 1}
+Plot raw data
 }

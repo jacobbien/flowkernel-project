@@ -1,6 +1,6 @@
 ---
 title: "Creating the ``r params$package_name`` R package"
-author: "Jacob Bien"
+author: "Jacob Bien, Farhad de Sousa"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 knit: litr::render
@@ -44,7 +44,7 @@ usethis::use_mit_license(copyright_holder = "F. Last")
 
 ## Package-level documentation
 
-Let's include some package-level documentation. Besides being user-friendly, it's also needed because we'll be using "import from" later.
+Let's include some package-level documentation. Besides being user-friendly, it's also needed because we'll be using "import from" later.  Also, notice that we are importing all of `mclust`.  This is because of [this error](https://stackoverflow.com/questions/46676598/use-a-function-in-an-r-package-that-depends-on-another-different-function) involving `mclustBIC()`, which is called when we call `Mclust()`.
 
 ```{package_doc}
 #' Smoothly Varying Mixture of Gaussians Modeling
@@ -52,4 +52,6 @@ Let's include some package-level documentation. Besides being user-friendly, it'
 #' This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.
 #' 
 #' @docType package
+#' @import mclust
 ```
+

@@ -2,9 +2,20 @@
 % Please edit documentation in _main.Rmd.
 \name{kernel_em}
 \alias{kernel_em}
-\title{Kernel-smoothed EM algorithm}
+\title{A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time}
 \usage{
-kernel_em(y, K, hmu, hSigma, hpi, num_iter = 100)
+kernel_em(
+  y,
+  K,
+  hmu,
+  hSigma,
+  hpi,
+  num_iter = 10,
+  biomass = default_biomass(y),
+  initial_fit = NULL,
+  times_to_sample = 50,
+  points_to_sample = 50
+)
 }
 \arguments{
 \item{y}{length T list with \code{y[[t]]} being a n_t-by-d matrix}
@@ -18,7 +29,15 @@ kernel_em(y, K, hmu, hSigma, hpi, num_iter = 100)
 \item{hpi}{bandwidth for pi parameter}
 
 \item{num_iter}{number of iterations of EM to perform}
+
+\item{biomass}{A list of length T, where each element \code{biomass[[t]]} is a numeric vector of length n_t containing the biomass (or count) of particles in each bin}
+
+\item{initial_fit}{initial fit from either of the initialization functions (defaults to constant initialization)}
+
+\item{times_to_sample}{number of time points to sample for constant initialization. Used only if initial_fit not given already.}
+
+\item{points_to_sample}{number of bins to sample from each sampled time point for constant initialization. Used only if initial_fit not given already.}
 }
 \description{
-Kernel-smoothed EM algorithm
+A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time
 }

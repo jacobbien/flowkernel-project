@@ -3,6 +3,7 @@
 #' This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.
 #' 
 #' @docType package
+#' @import mclust
 #' @keywords internal
 "_PACKAGE"
 

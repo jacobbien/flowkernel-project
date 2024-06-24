@@ -2,7 +2,7 @@
 % Please edit documentation in _main.Rmd.
 \name{plot_data_and_model}
 \alias{plot_data_and_model}
-\title{Plot data colored by cluster assignment with cluster means when \code{d=1}}
+\title{Plot data colored by cluster assignment with cluster means}
 \usage{
 plot_data_and_model(y, z, mu)
 }
@@ -14,5 +14,5 @@ plot_data_and_model(y, z, mu)
 \item{mu}{a T-by-K-by-d array of means}
 }
 \description{
-Plot data colored by cluster assignment with cluster means when \code{d=1}
+Plot data colored by cluster assignment with cluster means
 }

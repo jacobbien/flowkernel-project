@@ -8,17 +8,21 @@ Description: This package uses kernel-smoothed EM to estimate a smoothly
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Imports: 
     dplyr,
     ggplot2,
+    grDevices,
+    gridExtra,
     magrittr,
+    matrixStats,
     mclust,
     mvtnorm,
+    plotly,
     purrr,
     rlang,
     stats,
     tibble,
     tidyr
-LitrVersionUsed: 0.8.0
-LitrId: e65502b84a75e2ddd5149a362b740dbf
+LitrVersionUsed: 0.9.2
+LitrId: e7f45188428468cfd44a9b163cd40e08

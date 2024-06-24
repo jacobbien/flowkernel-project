@@ -1,62 +1,38 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
 <head>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>4 Conclusion | Creating the flowkernel R package</title>
-  <meta name="description" content="4 Conclusion | Creating the flowkernel R package" />
-  <meta name="generator" content="bookdown 0.32 and GitBook 2.6.7" />
-
-  <meta property="og:title" content="4 Conclusion | Creating the flowkernel R package" />
-  <meta property="og:type" content="book" />
-  
-  
-  
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="4 Conclusion | Creating the flowkernel R package" />
-  
-  
-  
-
-<meta name="author" content="Jacob Bien" />
-
-
-<meta name="date" content="2023-03-06" />
-
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  
-  
-<link rel="prev" href="the-method.html"/>
-
-<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script>
-<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
-<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
-
-
-
-
-
-
-
-
-<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet" />
-<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet" />
-<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script>
-
-
-<style type="text/css">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>4 Conclusion | Creating the flowkernel R package</title>
+<meta name="description" content="4 Conclusion | Creating the flowkernel R package">
+<meta name="generator" content="bookdown 0.39 and GitBook 2.6.7">
+<meta property="og:title" content="4 Conclusion | Creating the flowkernel R package">
+<meta property="og:type" content="book">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="4 Conclusion | Creating the flowkernel R package">
+<meta name="author" content="Jacob Bien, Farhad de Sousa">
+<meta name="date" content="2024-06-24">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="prev" href="the-method.html">
+<link rel="next" href="flowkernel-project.html">
+<script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><script src="https://cdn.jsdelivr.net/npm/fuse.js@6.4.6/dist/fuse.min.js"></script><link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet">
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections.css" rel="stylesheet">
+<link href="libs/anchor-sections-1.1.0/anchor-sections-hash.css" rel="stylesheet">
+<script src="libs/anchor-sections-1.1.0/anchor-sections.js"></script><link href="libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.6.4/htmlwidgets.js"></script><script src="libs/plotly-binding-4.10.4/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.1/js/crosstalk.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.11.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.11.1/plotly-latest.min.js"></script><style type="text/css">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -118,10 +94,14 @@ code span.va { color: #19177c; } /* Variable */
 code span.vs { color: #4070a0; } /* VerbatimString */
 code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
-
-
+<style type="text/css">
+  
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+</style>
+<style type="text/css">fieldset.chunkfield {border:1px dotted black;padding-bottom: 0px;padding-top: 0px;margin:0 2px;padding:.35em .625em .75em}
+    legend.chunklegend {padding:0;width:auto;border:0; border-bottom: none; margin-bottom:0}
+    </style>
 </head>
-
 <body>
 
 
@@ -129,37 +109,48 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
 
     <div class="book-summary">
-      <nav role="navigation">
-
-<ul class="summary">
-<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
+      <nav role="navigation"><ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html">
+<a href="index.html"><i class="fa fa-check"></i><b>1</b> Preliminaries</a>
 <ul>
 <li class="chapter" data-level="1.1" data-path="index.html"><a href="index.html#description-file"><i class="fa fa-check"></i><b>1.1</b> DESCRIPTION file</a></li>
 <li class="chapter" data-level="1.2" data-path="index.html"><a href="index.html#package-level-documentation"><i class="fa fa-check"></i><b>1.2</b> Package-level documentation</a></li>
-</ul></li>
-<li class="chapter" data-level="2" data-path="the-model.html"><a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
+</ul>
+</li>
+<li class="chapter" data-level="2" data-path="the-model.html">
+<a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
 <ul>
 <li class="chapter" data-level="2.1" data-path="the-model.html"><a href="the-model.html#generating-data-from-model"><i class="fa fa-check"></i><b>2.1</b> Generating data from model</a></li>
-<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-data-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.2</b> Visualizing data in one-dimensional case</a></li>
-<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model-in-one-dimensional-case"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model in one-dimensional case</a></li>
-</ul></li>
-<li class="chapter" data-level="3" data-path="the-method.html"><a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
+<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-the-raw-data"><i class="fa fa-check"></i><b>2.2</b> Visualizing the raw data:</a></li>
+<li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model</a></li>
+</ul>
+</li>
+<li class="chapter" data-level="3" data-path="the-method.html">
+<a href="the-method.html"><i class="fa fa-check"></i><b>3</b> The method</a>
 <ul>
-<li class="chapter" data-level="3.1" data-path="the-method.html"><a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a></li>
+<li class="chapter" data-level="3.1" data-path="the-method.html">
+<a href="the-method.html#initialization"><i class="fa fa-check"></i><b>3.1</b> Initialization</a>
+<ul>
+<li class="chapter" data-level="3.1.1" data-path="the-method.html"><a href="the-method.html#constant-initialization"><i class="fa fa-check"></i><b>3.1.1</b> Constant Initialization</a></li>
+<li class="chapter" data-level="3.1.2" data-path="the-method.html"><a href="the-method.html#bayesian-initialization"><i class="fa fa-check"></i><b>3.1.2</b> Bayesian Initialization</a></li>
+</ul>
+</li>
 <li class="chapter" data-level="3.2" data-path="the-method.html"><a href="the-method.html#e-step"><i class="fa fa-check"></i><b>3.2</b> E-step</a></li>
-<li class="chapter" data-level="3.3" data-path="the-method.html"><a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
+<li class="chapter" data-level="3.3" data-path="the-method.html">
+<a href="the-method.html#m-step"><i class="fa fa-check"></i><b>3.3</b> M-step</a>
 <ul>
 <li class="chapter" data-level="3.3.1" data-path="the-method.html"><a href="the-method.html#m-step-pi"><i class="fa fa-check"></i><b>3.3.1</b> M-step <span class="math inline">\(\pi\)</span></a></li>
 <li class="chapter" data-level="3.3.2" data-path="the-method.html"><a href="the-method.html#m-step-mu"><i class="fa fa-check"></i><b>3.3.2</b> M-step <span class="math inline">\(\mu\)</span></a></li>
 <li class="chapter" data-level="3.3.3" data-path="the-method.html"><a href="the-method.html#m-step-sigma"><i class="fa fa-check"></i><b>3.3.3</b> M-step <span class="math inline">\(\Sigma\)</span></a></li>
-</ul></li>
-<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
-</ul></li>
-<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
 </ul>
-
-      </nav>
-    </div>
+</li>
+<li class="chapter" data-level="3.4" data-path="the-method.html"><a href="the-method.html#trying-out-the-method"><i class="fa fa-check"></i><b>3.4</b> Trying out the method</a></li>
+</ul>
+</li>
+<li class="chapter" data-level="4" data-path="conclude.html"><a href="conclude.html"><i class="fa fa-check"></i><b>4</b> Conclusion</a></li>
+<li class="chapter" data-level="5" data-path="flowkernel-project.html"><a href="flowkernel-project.html"><i class="fa fa-check"></i><b>5</b> <code>flowkernel</code> project</a></li>
+</ul></nav>
+</div>
 
     <div class="book-body">
       <div class="body-inner">
@@ -172,41 +163,42 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
         <div class="page-wrapper" tabindex="-1" role="main">
           <div class="page-inner">
 
-            <section class="normal" id="section-">
-<div id="conclude" class="section level1 hasAnchor" number="4">
-<h1><span class="header-section-number">4</span> Conclusion<a href="conclude.html#conclude" class="anchor-section" aria-label="Anchor link to header"></a></h1>
+            <section class="normal" id="section-"><div id="conclude" class="section level1 hasAnchor" number="4">
+<h1>
+<span class="header-section-number">4</span> Conclusion<a href="conclude.html#conclude" class="anchor-section" aria-label="Anchor link to header"></a>
+</h1>
 <p>When you are done defining the package, it remains to convert the Roxygen to documentation.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb45-1"><a href="conclude.html#cb45-1" aria-hidden="true" tabindex="-1"></a>litr<span class="sc">::</span><span class="fu">document</span>() <span class="co"># &lt;-- use instead of devtools::document()</span></span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb72-1"><a href="conclude.html#cb72-1" tabindex="-1"></a>litr<span class="sc">::</span><span class="fu">document</span>() <span class="co"># &lt;-- use instead of devtools::document()</span></span></code></pre></div>
 <pre><code>## ℹ Updating flowkernel documentation
 ## ℹ Loading flowkernel
-## Writing &#39;NAMESPACE&#39;
-## Writing &#39;flowkernel-package.Rd&#39;
-## Writing &#39;generate_smooth_gauss_mix.Rd&#39;
-## Writing &#39;kernel_em.Rd&#39;
-## Writing &#39;plot_data.Rd&#39;
-## Writing &#39;plot_data_and_model.Rd&#39;
-## Writing &#39;pipe.Rd&#39;</code></pre>
+## Writing 'NAMESPACE'
+## Writing 'default_biomass.Rd'
+## Writing 'flowkernel-package.Rd'
+## Writing 'generate_smooth_gauss_mix.Rd'
+## Writing 'init_bayes.Rd'
+## Writing 'init_const.Rd'
+## Writing 'kernel_em.Rd'
+## Writing 'plot_1d_means.Rd'
+## Writing 'plot_1d_means_triple.Rd'
+## Writing 'plot_1d_means_with_width.Rd'
+## Writing 'plot_3d_centers.Rd'
+## Writing 'plot_data.Rd'
+## Writing 'plot_data_and_model.Rd'
+## Writing 'plot_pi.Rd'
+## Writing 'pipe.Rd'</code></pre>
 <p>You can also add some extra things to your package here if you like, such as a README, some vignettes, a <a href="https://pkgdown.r-lib.org/">pkgdown</a> site, etc. See <a href="https://github.com/jacobbien/litr-project/tree/main/examples/make-an-r-package-with-extras">here</a> for an example of how to do this with <code>litr</code>.</p>
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 </div>
             </section>
-
-          </div>
+</div>
         </div>
       </div>
-<a href="the-method.html" class="navigation navigation-prev navigation-unique" aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
-
+<a href="the-method.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="flowkernel-project.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
     </div>
   </div>
-<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
-<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
-<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
-<script>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script><script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script><script src="libs/gitbook-2.6.7/js/plugin-search.js"></script><script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script><script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script><script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script><script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script><script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script><script>
 gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
@@ -247,10 +239,7 @@ gitbook.start({
 }
 });
 });
-</script>
-
-<!-- dynamically load mathjax for compatibility with self-contained -->
-<script>
+</script><!-- dynamically load mathjax for compatibility with self-contained --><script>
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
@@ -264,5 +253,4 @@ gitbook.start({
   })();
 </script>
 </body>
-
 </html>
