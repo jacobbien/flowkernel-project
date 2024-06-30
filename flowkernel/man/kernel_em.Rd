@@ -2,7 +2,7 @@
 % Please edit documentation in _main.Rmd.
 \name{kernel_em}
 \alias{kernel_em}
-\title{A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time}
+\title{A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time}
 \usage{
 kernel_em(
   y,
@@ -12,9 +12,7 @@ kernel_em(
   hpi,
   num_iter = 10,
   biomass = default_biomass(y),
-  initial_fit = NULL,
-  times_to_sample = 50,
-  points_to_sample = 50
+  initial_fit = init_const(y, K, 50, 50)
 )
 }
 \arguments{
@@ -30,14 +28,12 @@ kernel_em(
 
 \item{num_iter}{number of iterations of EM to perform}
 
-\item{biomass}{A list of length T, where each element \code{biomass[[t]]} is a numeric vector of length n_t containing the biomass (or count) of particles in each bin}
+\item{biomass}{list of length T, where each element \code{biomass[[t]]} is a
+numeric vector of length n_t containing the biomass (or count) of particles
+in each bin}
 
-\item{initial_fit}{initial fit from either of the initialization functions (defaults to constant initialization)}
-
-\item{times_to_sample}{number of time points to sample for constant initialization. Used only if initial_fit not given already.}
-
-\item{points_to_sample}{number of bins to sample from each sampled time point for constant initialization. Used only if initial_fit not given already.}
+\item{initial_fit}{a list of starting values for the parameters, responsibilities, and estimated cluster assignments}
 }
 \description{
-A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time
+\link{Add here}
 }

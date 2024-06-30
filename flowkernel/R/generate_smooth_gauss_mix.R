@@ -8,8 +8,8 @@
 #' 
 #' Y_{it}|\{Z_{it}=k\} ~ N_d(mu_{kt},Sigma_{kt})
 #' where
-#' P(Z_{ik}=k)=pi_{kt}
-#' and the parameters (mu_t, Sigma_t, pi_t) are all slowly varying in time.
+#' P(Z_{it}=k)=pi_{kt}
+#' and the parameters (mu_{kt},Sigma_{kt}, pi_{kt}) are all slowly varying in time.
 #' 
 #' This function generates Y and Z.
 #' 

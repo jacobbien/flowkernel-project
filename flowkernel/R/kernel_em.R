@@ -1,6 +1,8 @@
 # Generated from _main.Rmd: do not edit by hand
 
-#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time
+#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time
+#' 
+#' [Add here]
 #' 
 #' @param y length T list with `y[[t]]` being a n_t-by-d matrix
 #' @param K number of components
@@ -8,26 +10,21 @@
 #' @param hSigma bandwidth for Sigma parameter
 #' @param hpi bandwidth for pi parameter
 #' @param num_iter number of iterations of EM to perform
-#' @param biomass A list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing the biomass (or count) of particles in each bin
-#' @param initial_fit initial fit from either of the initialization functions (defaults to constant initialization)
-#' @param times_to_sample number of time points to sample for constant initialization. Used only if initial_fit not given already.
-#' @param points_to_sample number of bins to sample from each sampled time point for constant initialization. Used only if initial_fit not given already.
+#' @param biomass list of length T, where each element `biomass[[t]]` is a 
+#' numeric vector of length n_t containing the biomass (or count) of particles 
+#' in each bin
+#' @param initial_fit a list of starting values for the parameters, responsibilities, and estimated cluster assignments
 #' @export
-kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10, biomass = default_biomass(y), initial_fit = NULL, times_to_sample = 50, points_to_sample = 50){
+kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10, 
+                       biomass = default_biomass(y),
+                       initial_fit = init_const(y, K, 50, 50)) {
   num_times <- length(y)
   d <- ncol(y[[1]])
-  mu <- array(NA, c(num_times, K, d))
-  Sigma <- array(NA, c(num_times, K, d, d))
-  pi <- matrix(NA, num_times, K)
-  resp <- list() # responsibilities gamma[[t]][i, k]
-if (is.null(initial_fit)) {
-    initial_fit = init_const(y, K, times_to_sample, points_to_sample)
-  }
-mu = initial_fit$mu
-Sigma = initial_fit$Sigma
-pi = initial_fit$pi
+  mu <- initial_fit$mu
+  Sigma <- initial_fit$Sigma
+  pi <- initial_fit$pi
   for (l in seq(num_iter)) {
-      # E-step: update responsibilities
+        # E-step: update responsibilities
         resp <- list() # responsibilities gamma[[t]][i, k]
         # E-step: update responsibilities
         if (d == 1) {
@@ -41,7 +38,7 @@ pi = initial_fit$pi
             temp <- t(t(phi) * pi[tt, ])
             resp[[tt]] <- temp / rowSums(temp)
           }
-        }else if (d > 1){
+        } else if (d > 1){
           for (tt in seq(num_times)) {
             phi <- matrix(NA, nrow(y[[tt]]), K)
             for (k in seq(K)) {
@@ -113,6 +110,5 @@ pi = initial_fit$pi
   dimnames(mu) <- list(NULL, paste0("cluster", 1:K), NULL)
   dimnames(Sigma) <- list(NULL, paste0("cluster", 1:K), NULL, NULL)
   dimnames(pi) <- list(NULL, paste0("cluster", 1:K))
-  fit <- list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
-  return(fit)
+  list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }

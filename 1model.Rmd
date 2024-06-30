@@ -13,7 +13,7 @@ In continuous-time flow cytometry data, we notice that this data has two propert
 To model data like this, we wish to fit a smoothly-varying mixture of Gaussians model:
 
 $$
-Y_{it}|\{Z_{it}=k\}\sim N_d(\mu_{kt},\Sigma_{kt})\qquad\mathbb P(Z_{ik}=k)=\pi_{kt}
+Y_{it}|\{Z_{it}=k\}\sim N_d(\mu_{kt},\Sigma_{kt})\qquad\mathbb P(Z_{it}=k)=\pi_{kt}
 $$
 where $(\mu_{kt},\Sigma_{kt},\pi_{kt})$ are slowly varying parameters.
 
@@ -30,8 +30,8 @@ It will be useful to have data generated from this model for testing purposes, s
 #' 
 #' Y_{it}|\{Z_{it}=k\} ~ N_d(mu_{kt},Sigma_{kt})
 #' where
-#' P(Z_{ik}=k)=pi_{kt}
-#' and the parameters (mu_t, Sigma_t, pi_t) are all slowly varying in time.
+#' P(Z_{it}=k)=pi_{kt}
+#' and the parameters (mu_{kt},Sigma_{kt}, pi_{kt}) are all slowly varying in time.
 #' 
 #' This function generates Y and Z.
 #' 
@@ -85,7 +85,7 @@ usethis::use_package("stats")
 usethis::use_package("mvtnorm")
 ```
 
-Let's generate simple examples in the $d=1$ and $d=3$cases:
+Let's generate simple examples in the $d=1$ and $d=3$ cases:
 
 ```{r}
 set.seed(123)
@@ -147,9 +147,9 @@ ex2$dat <- generate_smooth_gauss_mix(ex2$mu_function,
                                      ex2$num_points)
 ```
 
-## Visualizing the raw data:
+## Visualizing the raw data
 
-Let's make a function for visualizing the data in the one-dimensional and three dimensional cases.
+Let's make a function for visualizing the data in the one-dimensional and three-dimensional cases.
 
 ```{r}
 library(magrittr) # we'll be using the pipe in this document
@@ -210,6 +210,8 @@ plot_data <- function(y) {
   return(fig)
 }
 ```
+
+**Note to Farhad: It'd be good to have the 1d and 3d plotting functions behave as similarly as possible.  So if one has a title "Raw data" than the other should as well.**
 
 We've used some functions from other packages, so let's include those in our package:
 
@@ -334,6 +336,9 @@ plot_data_and_model <- function(y, z, mu) {
 }
 ```
 
+
+**Note to Farhad: Rather than hardcoding dimension names (like "Diameter"), it'd be better for it to be taken from `colnames(y[[t]])`.  And it'd be good for the 1d case to behave similarly.  If `colnames(y[[t]])` is NULL, then I suppose it can be something generic like "V1", "V2", "V3".**
+
 We used a function from `tidyr`, so let's include this package:
 
 ```{r}
@@ -347,7 +352,9 @@ For now we can use this to visualize the true model, although later this will be
 plot_data_and_model(ex1$dat$y, ex1$dat$z, ex1$dat$mu)
 plot_data_and_model(ex2$dat$y, ex2$dat$z, ex2$dat$mu)
 ```
+
 In 3-d, with a large number of data points, these plots might become too crowded to really appreciate. We therefore have a function that just shows how the cluster centers $\mu_{kt}$ evolve with time:
+
 ```{r}
 #' Plot cluster centers in 3-d
 #' 
@@ -397,8 +404,12 @@ plot_3d_centers <- function(y, z, mu){
   return(fig)
 }
 ```
+
+**Note to Farhad: I'm guessing there's a lot of repeated code between this and the previous function.  Would it be possible to not repeat yourself by allowing the function `plot_data_and_model()` to have an option for not plotting the data?  E.g. an argument `show_data = FALSE`?  (The reason to not repeat oneself in code is because it's harder to keep both versions aligned.  For example, I notice that `plot_data_and_model()` labels axes as "Diameter", etc, whereas `plot_3d_centers()` uses "X1", etc.**
+
+**Note to Farhad: Another reason is that it will make it easier for a user if there are fewer functions to have to navigate through.**
  
- Let's try this out for our 3-d example:
+Let's try this out for our 3-d example:
  
 ```{r}
 plot_3d_centers(ex2$dat$y, ex2$dat$z, ex2$dat$mu)
@@ -478,6 +489,9 @@ plot_1d_means <- function(mu, dim = 1) {
 }
 ```
 
+**Note to Farhad: This is another function that seems like it could be be part of `plot_data_and_model()` in which you have a `show_data = FALSE` argument. You can add another argument, which is `dim` that by default is `1:ncol(y[[1]])`, which will be `1:3` for the 3d case, it will be `1` in the 1d case, and then a user could choose for 3d data to do something like `dim=2` to see just that one dimension. Notice that this approach would also subsume the `plot_1d_means_triple()` function below.  Not only will this cut down on the amount of repeated code, but it will also allow a user to do things that you have yet to consider, such as plot the means and data together for 3d data but do it in 3 separate plots.**
+
+
 ```{r}
 plot_1d_means(ex2$dat$mu, dim = 1)
 plot_1d_means(ex2$dat$mu, dim = 2)
@@ -555,6 +569,7 @@ plot_1d_means_triple <- function(mu) {
 }
 ```
 
+**Note to Farhad: It would be nicer to use `ggplot2::facet_grid()` or `ggplot2::facet_wrap()` function for this rather than `gridExtra::grid.arrange()`.  It makes more efficient use of space, people are used to reading plots like that, and there will be a shared legend.**
 
 Here is an example of running this function: 
 ```{r}
@@ -640,3 +655,5 @@ plot_biomass = function (biomass, resp){
   return(pi_plotly)
 }
 ```
+
+**Note to Farhad: Instead of drawing the lines in the way you have with a for loop, the better way to make a plot with multiple lines in `ggplot2` is to create a single column in the data frame called `Cluster` that has levels 1 to K.  Then, use `color=Cluster`.  Not only will that be more succinct, but it also will have a legend labeled "Cluster" whereas now it's label is `paste("Cluster", k)`.**

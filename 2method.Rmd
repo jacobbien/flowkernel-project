@@ -3,8 +3,17 @@
 Given a kernel $w_h(t)$ with bandwidth $h$, we will be considering the following EM-inspired algorithm.
 
 Here’s a high-level look at the algorithm. We’ll discuss the initialization, E-step, and M-step in the next subsections.
+
+**Note to Farhad: The function below is referring to biomass and bins even though this hasn't been previously mentioned.  This makes me think that Section 2 should be describing the biomass aspect of this.  This could go in part before Section 2.1 and in part during Section 2.1 if you agree.  One approach could be to create a new section before the current Section 2.1 that describes the form of the data (e.g. bins vs particles, biomass, etc). Question for you: Do you think that `generate_smooth_gauss_mix()` should also generate biomasses?**
+
+**Note to Farhad: For a user of the package (who will not be reading this bookdown but rather using `?kernel_em`), it'd be good to add a bit of explanation below where I have written "[Add here]" (see line 12).  This can be a few lines explaining some things like the use of `y` versus `biomass`.  Also, it'd be good to describe the format of `initial_fit`.**
+
+**Note to Farhad: You'll see that I've made the code a bit more succinct in terms of the initialization of `initial_fit`.  I got rid of the initialization code chunk since it was too short to justify its own code chunk.  However, the initialization section is so long and complex, I would suggest moving this section to after the E-step and M-step sections.  I think as a reader I first want to understand the main algorithm and then be told about initialization.**
+
 ```{r}
-#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that change over time
+#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time
+#' 
+#' [Add here]
 #' 
 <<y-param>>
 #' @param K number of components
@@ -12,19 +21,19 @@ Here’s a high-level look at the algorithm. We’ll discuss the initialization,
 #' @param hSigma bandwidth for Sigma parameter
 #' @param hpi bandwidth for pi parameter
 #' @param num_iter number of iterations of EM to perform
-#' @param biomass A list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing the biomass (or count) of particles in each bin
-#' @param initial_fit initial fit from either of the initialization functions (defaults to constant initialization)
-#' @param times_to_sample number of time points to sample for constant initialization. Used only if initial_fit not given already.
-#' @param points_to_sample number of bins to sample from each sampled time point for constant initialization. Used only if initial_fit not given already.
+#' @param biomass list of length T, where each element `biomass[[t]]` is a 
+#' numeric vector of length n_t containing the biomass (or count) of particles 
+#' in each bin
+#' @param initial_fit a list of starting values for the parameters, responsibilities, and estimated cluster assignments
 #' @export
-kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10, biomass = default_biomass(y), initial_fit = NULL, times_to_sample = 50, points_to_sample = 50){
+kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10, 
+                       biomass = default_biomass(y),
+                       initial_fit = init_const(y, K, 50, 50)) {
   num_times <- length(y)
   d <- ncol(y[[1]])
-  mu <- array(NA, c(num_times, K, d))
-  Sigma <- array(NA, c(num_times, K, d, d))
-  pi <- matrix(NA, num_times, K)
-  resp <- list() # responsibilities gamma[[t]][i, k]
-<<initialize-with-mclust>>
+  mu <- initial_fit$mu
+  Sigma <- initial_fit$Sigma
+  pi <- initial_fit$pi
   for (l in seq(num_iter)) {
     <<E-step>>
     <<M-step>>
@@ -33,8 +42,7 @@ kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10, biomass = default_
   dimnames(mu) <- list(NULL, paste0("cluster", 1:K), NULL)
   dimnames(Sigma) <- list(NULL, paste0("cluster", 1:K), NULL, NULL)
   dimnames(pi) <- list(NULL, paste0("cluster", 1:K))
-  fit <- list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
-  return(fit)
+  list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }
 ```
 
@@ -46,9 +54,9 @@ First, we begin with a function that creates a "default biomass" for data that i
 #' Creates a biomass list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing just 1's. 
 <<y-param>>
 default_biomass <- function(y) { 
-  biomasslist = vector("list", length(y))
+  biomasslist <- vector("list", length(y))
   for (i in 1:length(y)) {
-    biomasslist[[i]] = as.numeric(rep(1,dim(y[[i]])[1]))
+    biomasslist[[i]] <- as.numeric(rep(1, dim(y[[i]])[1]))
   }
   return(biomasslist)
 }
@@ -58,7 +66,7 @@ We have tried numerous ways of initializing: randomly sampling points for a cons
 
 
 ### Constant Initialization
-We get a constant initialization by randomly sampling time points, and then from each sampled time point, randomly sampling some points, and fitting a regular EM-algorithm using the mclust package to the randomly chosen points.
+We get a constant initialization by randomly sampling time points, and then from each sampled time point, randomly sampling some points, and fitting a regular EM-algorithm using the `mclust` package to the randomly chosen points.
 
 ```{r}
 #' Initialize the Kernel EM-algorithm using constant parameters
@@ -74,34 +82,37 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
   mu <- array(NA, c(num_times, K, d))
   Sigma <- array(NA, c(num_times, K, d, d))
   pi <- matrix(NA, num_times, K)
-  sample_data <- matrix(nrow = times_to_sample * points_to_sample, ncol = d)
-  init_fit = NULL
-  # Sample 50 different time points
-  while (is.null(init_fit) == TRUE){
-    time_points <- sample(1:num_times, times_to_sample, replace = TRUE)
-    row_counter = 1
-    # Loop over each sampled time point
-    for (tt in time_points) {
-      # Sample 50 rows from the matrix at the current time point
-      rows_to_sample <- sample(1:nrow(y[[tt]]), points_to_sample, replace = TRUE)
-      sampled_rows <- y[[tt]][rows_to_sample, ]
-      # Append the sampled rows to the sample_init matrix
-      sample_data[row_counter:(row_counter + points_to_sample - 1), ] <- sampled_rows
-      row_counter <- row_counter + points_to_sample
-    }
-    if (d == 1){
+  
+  # subsample data:
+  times_to_sample <- sample(num_times, times_to_sample, replace=TRUE)
+  if (d == 1) {
+    sample_data <- y[times_to_sample] %>%
+      purrr::map(~ .x[sample(nrow(.x), points_to_sample, replace=TRUE)]) %>% 
+      unlist()
+  }
+  else {
+    sample_data <- y[times_to_sample] %>%
+      purrr::map(~ t(.x[sample(nrow(.x), points_to_sample, replace=TRUE), ])) %>% 
+      unlist() %>% 
+      matrix(ncol = d, byrow = TRUE)
+  }
+  
+  # Repeatedly call Mclust until it gives a non-NULL fit:
+  init_fit <- NULL
+  while (is.null(init_fit)) {
+    if (d == 1) {
       init_fit <- mclust::Mclust(sample_data, G = K, modelNames = "V")
-      for (tt in seq(num_times)){
+      for (tt in seq(num_times)) {
         mu[tt, , 1] <- init_fit$parameters$mean
         Sigma[tt, , 1, 1] <- init_fit$parameters$variance$sigmasq
-        pi [tt, ] <- init_fit$parameters$pro
+        pi[tt, ] <- init_fit$parameters$pro
       }
-    }else if (d > 1){
+    } else if (d > 1) {
       init_fit <- mclust::Mclust(sample_data, G = K, modelNames = "VVV")
-      for (tt in seq(num_times)){
-      mu[tt, ,] <- t(init_fit$parameters$mean)
-      pi[tt, ] <- init_fit$parameters$pro
-      Sigma[tt, , , ] <- aperm(init_fit$parameters$variance$sigma, c(3,1,2))
+      for (tt in seq(num_times)) {
+        mu[tt, ,] <- t(init_fit$parameters$mean)
+        pi[tt, ] <- init_fit$parameters$pro
+        Sigma[tt, , , ] <- aperm(init_fit$parameters$variance$sigma, c(3,1,2))
       }
     }
   }
@@ -132,9 +143,21 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
     }
   }
   zest <- resp %>% purrr::map(~ max.col(.x))
-  fit_init = list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
-  return(fit_init)
+  list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }
+```
+
+**Note to Farhad: In general it's best to avoid repeating the same lines of code in different places.  I'm noticing multiple places where you need to calculate responsibilities.  I would suggest defining a function called something like `calculate_responsibilities()` that takes a `mu`, `Sigma`, and `pi` as input.**
+
+In the above, we concatenated a list of matrices.  Here's a small example to verify that this is working as intended:
+
+```{r}
+list_of_mats <- list(matrix(1:10, 2, 5), matrix(11:25, 3, 5))
+list_of_mats
+list(list_of_mats) %>% 
+  purrr::map(~ t(.x)) %>% 
+  unlist() %>% 
+  matrix(ncol = 5, byrow = TRUE)
 ```
 
 
@@ -156,46 +179,80 @@ Pretty reasonable centers were chosen! If we get a bad initialization by chance 
 
 ### Bayesian Initialization
 
-To have a more principled initialization that varies with time, we can use a Bayesian approach. We can estimate both $\mu_{tk}$ and $\hat\Sigma_{tk}$ using their posterior means, assuming conjugate prior distributions.  
+We'd like to have an initialization method that can vary with time yet can do well even for time points where there is only a small number of particles in a given cluster.  The idea is to take a Bayesian approach in which the previous time point serves as the prior for the next time point.  The implicit assumption is that the parameters vary sufficiently smoothly that the previous time point's parameter values are a reasonable estimate of the next time point's parameter values. For now, we take the priors to be based on the previous time point, but we can also consider priors formed based on all previous time points.
 
 Let $\tilde\gamma_{itk} = C_i^{(t)}\gamma_{itk}$, which are "weighted responsibilities", where each $\gamma_{itk}$ has been multiplied with the corresponding biomass of bin $i$ at time $t$. We use these weighted responsibilities in our Bayesian approach (can make it unweighted to simplify). 
 
 For $\pi_{tk}$, we assume a Dirichlet prior, getting a posterior mean of: (this specific calculation needs to be double checked)
+
+**Note to Farhad: In terms of double checking, it would be good to write out more details here.  In particular, for such a calculation, we'd like to know what the prior is (stating hyperparameter values not just "Dirichlet") and then what the random variable is whose parameters are described by the prior.  And then what the posterior is.  And then finally the below equation would be the posterior mean.  Here's my attempt to do this (would be good for you to verify and then do the same for the other parameters beyond $\pi_t$):**
+
+At time $t$ we imagine estimating the number of points in each class $k$, which is
+
+$$
+n_t\hat{\pi}_t|\pi_t\sim\text{Multinomial}(n_t,\pi_{t})
+$$
+where $\hat{\pi}_t,\pi_t$ are $K$-dimensional probability vectors.  Our prior takes the previous 
+
+$$\pi_{t}\sim \text{Dirichlet}(n_{t-1}\hat{\pi}_{t-1}).$$
+(Here we are conditioning on everything that happened before time $t$, but omitting this in the notation.)
+
+Thus, the posterior is
+
+$$
+\pi_t|n_t\hat\pi_t\sim \text{Dirichlet}(n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1})
+$$
+
+and the posterior mean is thus
+
+$$
+\mathbb E[\pi_t|n_t\hat\pi_t]=\frac{n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1}}{\sum_{k=1}^K[n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1,k}]}=\frac{n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1}}{n_t+n_{t-1}}.
+$$
+In other words, we estimate the vector $\pi_t$ to be the convex combination $\alpha_t\hat\pi_t+(1-\alpha_t)\hat\pi_{t-1}$, where $\alpha_t=n_t/(n_t+n_{t-1})$.
+
+**Note to Farhad: This is the end of my suggested description of the $pi$ part of the Bayesian method.  I didn't tackle the biomass aspect of this, so I'll leave it to you to figure out how this can be adapted to that case.**
+
 $$
 \hat{\pi}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) + \sum_{i=1}^{n_t} \tilde\gamma_{itk}}
 {n_{t-1} + n_{t}}
 $$
-where $n_t = \sum_{i=1}^{B} C_i^{(t)}$ is the total number of points (or total biomass) at time $t$ ($B$ is the total number of bins (or points, if the data is unbinned)). 
+
+where $n_t = \sum_{i=1}^{B} C_i^{(t)}$ is the total number of points (or total biomass) at time $t$. Here, $B$ is the total number of bins (or points, if the data is unbinned).
 
 
-For $\mu_{tk}$, we assume a prior that's a multivariate normal distribution with mean $\mu_{t-1k}$ and covariance matrix $\frac{1}{n_{t-1k}} \hat\Sigma_{t-1k}$. We then get the following posterior mean:
-
-$$
-\hat{\mu}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) \mu_{kt-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} Y_{it}}
-{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
-$$
-We then estimate $\hat\Sigma_{tk}$ using the posterior mean again, assuming a prior that's an inverse-Wishart with mean $\hat\Sigma_{t-1k}$. Our estimate is:
+For $\mu_{tk}$, we assume a prior that's a multivariate normal distribution with mean $\mu_{t-1,k}$ and covariance matrix $\frac{1}{n_{t-1,k}} \hat\Sigma_{t-1,k}$. We then get the following posterior mean:
 
 $$
-\hat{\Sigma}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) \Sigma_{kt-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} \left(Y_{it} - \mu_{tk}\right) \left(Y_{it} - \mu_{tk}\right)^T}
-{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
+\hat{\mu}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) \mu_{k,t-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} Y_{it}}
+{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
+$$
+We then estimate $\hat\Sigma_{tk}$ using the posterior mean again, assuming a prior that's an inverse-Wishart with mean $\hat\Sigma_{t-1,k}$. Our estimate is:
+
+$$
+\hat{\Sigma}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) \Sigma_{k,t-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} \left(Y_{it} - \mu_{tk}\right) \left(Y_{it} - \mu_{tk}\right)^T}
+{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
 $$
 
-A bit more thought is required regarding what multiple iterations (default number of iterations is 1) of this Bayesian EM-algorithm would do (on the second iteration and above, we use $\mu_{kt}$ from the previous iteration in the place of $\mu_{t-1k}$, and similarly for $\Sigma_{tk}$ and $\pi_{tk}$). We also add the option to introduce Laplace smoothing for calculating the responsibilities, to prevent $pi_{tk}$ collapsing to 0 for some clusters (the default Laplace smoothing constant is 0). Here is the function that implements this approach:
+A bit more thought is required regarding what multiple iterations (default number of iterations is 1) of this Bayesian EM-algorithm would do (on the second iteration and above, we use $\mu_{kt}$ from the previous iteration in the place of $\mu_{t-1,k}$, and similarly for $\Sigma_{tk}$ and $\pi_{tk}$). We also add the option to introduce Laplace smoothing for calculating the responsibilities, to prevent $pi_{tk}$ collapsing to 0 for some clusters (the default Laplace smoothing constant is 0). Here is the function that implements this approach:
 
+**Note to Farhad: I agree with your comment below that more explanation about Laplace smoothing is needed.  Unless you don't think we need it anymore, in which case it can be removed.**
 
+**Note to Farhad: You should describe in the text what is going on with `matrixStats::rowLogSumExps()`.  Also, this part would probably be packaged in the function `calculate_responsibilities()` that I've suggested you create.**
 
 ```{r}
 #' Initialize the Kernel EM-algorithm using Bayesian methods
 #' 
 <<y-param>>
 #' @param K number of components
-#' @param biomass A list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing the biomass (or count) of particles in each bin
-#' @param num_iter number of iterations of EM to perform #need to think more about iterations for Bayes init
-#' @param lap_smooth_const laplace smoothing constant #More explanation needed
+#' @param biomass list of length T, where each element `biomass[[t]]` is a 
+#' numeric vector of length n_t containing the biomass (or count) of particles
+#' in each bin
+#' @param num_iter number of iterations of EM to perform #need to think more 
+#' about iterations for Bayes init
+#' @param lap_smooth_const Laplace smoothing constant #More explanation needed
 #' @export
-init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1, lap_smooth_const = 0){
-  #browser()
+init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1,
+                        lap_smooth_const = 0){
   num_times <- length(y)
   d <- ncol(y[[1]])
   resp <- list() # responsibilities gamma[[t]][i, k]
@@ -311,7 +368,7 @@ init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1, lap_s
         unlist() %>% 
         array(c(K, d))
       for (k in seq(K)){
-          mu[tt, k, ] <- ((resp_sum[[tt - 1]][, k] * mu[tt - 1, k , ]) +  y_sum[[tt]][k, ]) / (resp_sum[[tt - 1]] [, k] + resp_sum[[tt]] [, k])
+          mu[tt, k, ] <- ((resp_sum[[tt - 1]][, k] * mu[tt - 1, k , ]) +  y_sum[[tt]][k, ]) / (resp_sum[[tt - 1]][, k] + resp_sum[[tt]][, k])
 
       }
 
@@ -364,17 +421,6 @@ usethis::use_package("mclust")
 usethis::use_package("matrixStats")
 ```
 
-Our default initialization for the kernel-em function will be the constant initialization:
-```{r initialize-with-mclust, eval=FALSE}
-if (is.null(initial_fit)) {
-    initial_fit = init_const(y, K, times_to_sample, points_to_sample)
-  }
-mu = initial_fit$mu
-Sigma = initial_fit$Sigma
-pi = initial_fit$pi
-```
-
-
 Now that we have responsibilities, we can plot the biomass for each cluster over time:
 
 ```{r}
@@ -390,7 +436,7 @@ $$
 $$
 
 ```{r E-step, eval = FALSE}
-  # E-step: update responsibilities
+    # E-step: update responsibilities
     resp <- list() # responsibilities gamma[[t]][i, k]
     # E-step: update responsibilities
     if (d == 1) {
@@ -404,7 +450,7 @@ $$
         temp <- t(t(phi) * pi[tt, ])
         resp[[tt]] <- temp / rowSums(temp)
       }
-    }else if (d > 1){
+    } else if (d > 1){
       for (tt in seq(num_times)) {
         phi <- matrix(NA, nrow(y[[tt]]), K)
         for (k in seq(K)) {
@@ -479,7 +525,7 @@ $$
 We are then ready to compute the following:
 
 $$
-\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_h(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_h(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_h(t-s)n_s}}
+\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}
 $$
 
 ```{r M-step-pi, eval=FALSE}
@@ -591,7 +637,7 @@ mat_sum <- array(NA, c(num_times, K, d, d))
 
 ## Trying out the method
 
-Let's first try out our 1-d example, with all bandwidths equal to 5. Notice that no initialization is explicitly fed into the kernel_em function, so it will use a constant initialization.
+Let's first try out our 1-d example, with all bandwidths equal to 5. Notice that no initialization is explicitly fed into the `kernel_em()` function, so it will use a constant initialization.
 
 ```{r}
 fit <- kernel_em(ex1$dat$y, K = 2, hmu = 5, hSigma = 5, hpi = 5, num_iter = 20)
@@ -620,7 +666,12 @@ Let's have a look at the responsibilities that we get from our model. We conside
 ```{r}
 fit$resp[[50]][1:4, ]
 ```
-We see that the algorithm is pretty certain that the first bin at time point 50 belongs to cluster 2, the second to cluster 2 also, the third to cluster 1, and the 4th to cluster 3. We might not always have this certainty for points that are somewhat "midway" between different cluster centers.
+We see that the algorithm is pretty certain that the first bin at time point 50 belongs to cluster 2, the second to cluster 2 also, the third to cluster 1, and the 4th to cluster 3. We might not always have this certainty for points that are somewhat "midway" between different cluster centers.  For example:
+
+```{r}
+round(fit$resp[[92]][135,],2)
+```
+
 
 Now let's see what happens when we use a much larger bandwidth:
 ```{r}

@@ -1,13 +1,13 @@
 ---
 title: "Creating the ``r params$package_name`` R package"
-author: "Jacob Bien, Farhad de Sousa"
+author: "Farhad de Sousa and Jacob Bien"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 knit: litr::render
 output: litr::litr_gitbook
 params:
-  package_name: "flowkernel" # <-- change this to your package name
-  package_parent_dir: "." # <-- relative to this file's location
+  package_name: "flowkernel"
+  package_parent_dir: "."
 documentclass: book
 ---
 
@@ -31,12 +31,19 @@ usethis::create_package(
     Version = "0.0.0.9000",
     Title = "Smoothly Varying Mixture of Gaussians Modeling",
     Description = "This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.",
-    `Authors@R` = person(
+    `Authors@R` = c(person(
       given = "Jacob",
       family = "Bien",
       email = "jbien@usc.edu",
       role = c("aut", "cre")
+      ),
+      person(
+      given = "Farhad",
+      family = "de Sousa",
+      email = "fdesousa@usc.edu",
+      role = c("aut")
       )
+    )
   )
 )
 usethis::use_mit_license(copyright_holder = "F. Last")

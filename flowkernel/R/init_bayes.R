@@ -4,12 +4,15 @@
 #' 
 #' @param y length T list with `y[[t]]` being a n_t-by-d matrix
 #' @param K number of components
-#' @param biomass A list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing the biomass (or count) of particles in each bin
-#' @param num_iter number of iterations of EM to perform #need to think more about iterations for Bayes init
-#' @param lap_smooth_const laplace smoothing constant #More explanation needed
+#' @param biomass list of length T, where each element `biomass[[t]]` is a 
+#' numeric vector of length n_t containing the biomass (or count) of particles
+#' in each bin
+#' @param num_iter number of iterations of EM to perform #need to think more 
+#' about iterations for Bayes init
+#' @param lap_smooth_const Laplace smoothing constant #More explanation needed
 #' @export
-init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1, lap_smooth_const = 0){
-  #browser()
+init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1,
+                        lap_smooth_const = 0){
   num_times <- length(y)
   d <- ncol(y[[1]])
   resp <- list() # responsibilities gamma[[t]][i, k]
@@ -125,7 +128,7 @@ init_bayes <- function (y, K,  biomass = default_biomass(y), num_iter = 1, lap_s
         unlist() %>% 
         array(c(K, d))
       for (k in seq(K)){
-          mu[tt, k, ] <- ((resp_sum[[tt - 1]][, k] * mu[tt - 1, k , ]) +  y_sum[[tt]][k, ]) / (resp_sum[[tt - 1]] [, k] + resp_sum[[tt]] [, k])
+          mu[tt, k, ] <- ((resp_sum[[tt - 1]][, k] * mu[tt - 1, k , ]) +  y_sum[[tt]][k, ]) / (resp_sum[[tt - 1]][, k] + resp_sum[[tt]][, k])
 
       }
 

@@ -13,34 +13,37 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
   mu <- array(NA, c(num_times, K, d))
   Sigma <- array(NA, c(num_times, K, d, d))
   pi <- matrix(NA, num_times, K)
-  sample_data <- matrix(nrow = times_to_sample * points_to_sample, ncol = d)
-  init_fit = NULL
-  # Sample 50 different time points
-  while (is.null(init_fit) == TRUE){
-    time_points <- sample(1:num_times, times_to_sample, replace = TRUE)
-    row_counter = 1
-    # Loop over each sampled time point
-    for (tt in time_points) {
-      # Sample 50 rows from the matrix at the current time point
-      rows_to_sample <- sample(1:nrow(y[[tt]]), points_to_sample, replace = TRUE)
-      sampled_rows <- y[[tt]][rows_to_sample, ]
-      # Append the sampled rows to the sample_init matrix
-      sample_data[row_counter:(row_counter + points_to_sample - 1), ] <- sampled_rows
-      row_counter <- row_counter + points_to_sample
-    }
-    if (d == 1){
+  
+  # subsample data:
+  times_to_sample <- sample(num_times, times_to_sample, replace=TRUE)
+  if (d == 1) {
+    sample_data <- y[times_to_sample] %>%
+      purrr::map(~ .x[sample(nrow(.x), points_to_sample, replace=TRUE)]) %>% 
+      unlist()
+  }
+  else {
+    sample_data <- y[times_to_sample] %>%
+      purrr::map(~ t(.x[sample(nrow(.x), points_to_sample, replace=TRUE), ])) %>% 
+      unlist() %>% 
+      matrix(ncol = d, byrow = TRUE)
+  }
+  
+  # Repeatedly call Mclust until it gives a non-NULL fit:
+  init_fit <- NULL
+  while (is.null(init_fit)) {
+    if (d == 1) {
       init_fit <- mclust::Mclust(sample_data, G = K, modelNames = "V")
-      for (tt in seq(num_times)){
+      for (tt in seq(num_times)) {
         mu[tt, , 1] <- init_fit$parameters$mean
         Sigma[tt, , 1, 1] <- init_fit$parameters$variance$sigmasq
-        pi [tt, ] <- init_fit$parameters$pro
+        pi[tt, ] <- init_fit$parameters$pro
       }
-    }else if (d > 1){
+    } else if (d > 1) {
       init_fit <- mclust::Mclust(sample_data, G = K, modelNames = "VVV")
-      for (tt in seq(num_times)){
-      mu[tt, ,] <- t(init_fit$parameters$mean)
-      pi[tt, ] <- init_fit$parameters$pro
-      Sigma[tt, , , ] <- aperm(init_fit$parameters$variance$sigma, c(3,1,2))
+      for (tt in seq(num_times)) {
+        mu[tt, ,] <- t(init_fit$parameters$mean)
+        pi[tt, ] <- init_fit$parameters$pro
+        Sigma[tt, , , ] <- aperm(init_fit$parameters$variance$sigma, c(3,1,2))
       }
     }
   }
@@ -71,6 +74,5 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
     }
   }
   zest <- resp %>% purrr::map(~ max.col(.x))
-  fit_init = list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
-  return(fit_init)
+  list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }

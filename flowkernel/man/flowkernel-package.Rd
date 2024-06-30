@@ -11,5 +11,10 @@ This package uses kernel-smoothed EM to estimate a smoothly varying mixture of G
 \author{
 \strong{Maintainer}: Jacob Bien \email{jbien@usc.edu}
 
+Authors:
+\itemize{
+  \item Farhad de Sousa \email{fdesousa@usc.edu}
+}
+
 }
 \keyword{internal}

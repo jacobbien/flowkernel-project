@@ -11,8 +11,8 @@
 <meta property="og:type" content="book">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Creating the flowkernel R package">
-<meta name="author" content="Jacob Bien, Farhad de Sousa">
-<meta name="date" content="2024-06-24">
+<meta name="author" content="Farhad de Sousa and Jacob Bien">
+<meta name="date" content="2024-06-30">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -120,7 +120,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <a href="the-model.html"><i class="fa fa-check"></i><b>2</b> The model</a>
 <ul>
 <li class="chapter" data-level="2.1" data-path="the-model.html"><a href="the-model.html#generating-data-from-model"><i class="fa fa-check"></i><b>2.1</b> Generating data from model</a></li>
-<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-the-raw-data"><i class="fa fa-check"></i><b>2.2</b> Visualizing the raw data:</a></li>
+<li class="chapter" data-level="2.2" data-path="the-model.html"><a href="the-model.html#visualizing-the-raw-data"><i class="fa fa-check"></i><b>2.2</b> Visualizing the raw data</a></li>
 <li class="chapter" data-level="2.3" data-path="the-model.html"><a href="the-model.html#visualizing-data-and-model"><i class="fa fa-check"></i><b>2.3</b> Visualizing data and model</a></li>
 </ul>
 </li>
@@ -164,8 +164,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 
             <section class="normal" id="section-"><div id="header">
 <h1 class="title">Creating the <code>flowkernel</code> R package</h1>
-<p class="author"><em>Jacob Bien, Farhad de Sousa</em></p>
-<p class="date"><em>2024-06-24</em></p>
+<p class="author"><em>Farhad de Sousa and Jacob Bien</em></p>
+<p class="date"><em>2024-06-30</em></p>
 </div>
 <div id="preliminaries" class="section level1 hasAnchor" number="1">
 <h1>
@@ -185,15 +185,22 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb2-5"><a href="index.html#cb2-5" tabindex="-1"></a>    <span class="at">Version =</span> <span class="st">"0.0.0.9000"</span>,</span>
 <span id="cb2-6"><a href="index.html#cb2-6" tabindex="-1"></a>    <span class="at">Title =</span> <span class="st">"Smoothly Varying Mixture of Gaussians Modeling"</span>,</span>
 <span id="cb2-7"><a href="index.html#cb2-7" tabindex="-1"></a>    <span class="at">Description =</span> <span class="st">"This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model."</span>,</span>
-<span id="cb2-8"><a href="index.html#cb2-8" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">person</span>(</span>
+<span id="cb2-8"><a href="index.html#cb2-8" tabindex="-1"></a>    <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">person</span>(</span>
 <span id="cb2-9"><a href="index.html#cb2-9" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"Jacob"</span>,</span>
 <span id="cb2-10"><a href="index.html#cb2-10" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"Bien"</span>,</span>
 <span id="cb2-11"><a href="index.html#cb2-11" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"jbien@usc.edu"</span>,</span>
 <span id="cb2-12"><a href="index.html#cb2-12" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>, <span class="st">"cre"</span>)</span>
-<span id="cb2-13"><a href="index.html#cb2-13" tabindex="-1"></a>      )</span>
-<span id="cb2-14"><a href="index.html#cb2-14" tabindex="-1"></a>  )</span>
-<span id="cb2-15"><a href="index.html#cb2-15" tabindex="-1"></a>)</span>
-<span id="cb2-16"><a href="index.html#cb2-16" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
+<span id="cb2-13"><a href="index.html#cb2-13" tabindex="-1"></a>      ),</span>
+<span id="cb2-14"><a href="index.html#cb2-14" tabindex="-1"></a>      <span class="fu">person</span>(</span>
+<span id="cb2-15"><a href="index.html#cb2-15" tabindex="-1"></a>      <span class="at">given =</span> <span class="st">"Farhad"</span>,</span>
+<span id="cb2-16"><a href="index.html#cb2-16" tabindex="-1"></a>      <span class="at">family =</span> <span class="st">"de Sousa"</span>,</span>
+<span id="cb2-17"><a href="index.html#cb2-17" tabindex="-1"></a>      <span class="at">email =</span> <span class="st">"fdesousa@usc.edu"</span>,</span>
+<span id="cb2-18"><a href="index.html#cb2-18" tabindex="-1"></a>      <span class="at">role =</span> <span class="fu">c</span>(<span class="st">"aut"</span>)</span>
+<span id="cb2-19"><a href="index.html#cb2-19" tabindex="-1"></a>      )</span>
+<span id="cb2-20"><a href="index.html#cb2-20" tabindex="-1"></a>    )</span>
+<span id="cb2-21"><a href="index.html#cb2-21" tabindex="-1"></a>  )</span>
+<span id="cb2-22"><a href="index.html#cb2-22" tabindex="-1"></a>)</span>
+<span id="cb2-23"><a href="index.html#cb2-23" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>(<span class="at">copyright_holder =</span> <span class="st">"F. Last"</span>)</span></code></pre></div>
 </div>
 <div id="package-level-documentation" class="section level2 hasAnchor" number="1.2">
 <h2>

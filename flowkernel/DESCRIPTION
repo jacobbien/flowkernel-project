@@ -1,8 +1,10 @@
 Package: flowkernel
 Title: Smoothly Varying Mixture of Gaussians Modeling
 Version: 0.0.0.9000
-Authors@R: 
-    person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre"))
+Authors@R: c(
+    person("Jacob", "Bien", , "jbien@usc.edu", role = c("aut", "cre")),
+    person("Farhad", "de Sousa", , "fdesousa@usc.edu", role = "aut")
+  )
 Description: This package uses kernel-smoothed EM to estimate a smoothly
     varying mixture of Gaussians model.
 License: MIT + file LICENSE
@@ -25,4 +27,4 @@ Imports:
     tibble,
     tidyr
 LitrVersionUsed: 0.9.2
-LitrId: e7f45188428468cfd44a9b163cd40e08
+LitrId: a64c52a185aaa9238f859a062f6a6623

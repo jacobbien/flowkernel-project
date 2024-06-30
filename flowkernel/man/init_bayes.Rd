@@ -17,11 +17,14 @@ init_bayes(
 
 \item{K}{number of components}
 
-\item{biomass}{A list of length T, where each element \code{biomass[[t]]} is a numeric vector of length n_t containing the biomass (or count) of particles in each bin}
+\item{biomass}{list of length T, where each element \code{biomass[[t]]} is a
+numeric vector of length n_t containing the biomass (or count) of particles
+in each bin}
 
-\item{num_iter}{number of iterations of EM to perform #need to think more about iterations for Bayes init}
+\item{num_iter}{number of iterations of EM to perform #need to think more
+about iterations for Bayes init}
 
-\item{lap_smooth_const}{laplace smoothing constant #More explanation needed}
+\item{lap_smooth_const}{Laplace smoothing constant #More explanation needed}
 }
 \description{
 Initialize the Kernel EM-algorithm using Bayesian methods
