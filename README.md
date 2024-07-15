@@ -25,7 +25,12 @@ directory and then (from an R session in this directory) run the
 following:
 
 ``` r
-litr::render("index.Rmd")
+litr::render("create-flowkernel/index.Rmd")
+fs::dir_copy("create-flowkernel/_book", "docs/create", overwrite = TRUE)
+fs::dir_delete("create-flowkernel/_book")
+fs::dir_copy("create-flowkernel/flowkernel", "flowkernel", overwrite = TRUE)
+fs::dir_delete("create-flowkernel/flowkernel")
+fs::dir_delete("create-flowkernel/_main_files/")
 ```
 
 To install the latest version of `litr`, run

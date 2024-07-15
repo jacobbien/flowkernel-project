@@ -1,0 +1,64 @@
+---
+title: "Creating the ``r params$package_name`` R package"
+author: "Farhad de Sousa and Jacob Bien"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+knit: litr::render
+output: litr::litr_gitbook
+params:
+  package_name: "flowkernel"
+  package_parent_dir: "."
+documentclass: book
+---
+
+# Preliminaries
+
+This document uses [litr](https://jacobbien.github.io/litr-project/) to define the ``r params$package_name`` R package.  When the `index.Rmd` file is rendered, the R package is created along with the bookdown you are reading.  To do so in RStudio, you can simply open  `index.Rmd` and press "Knit" to render the bookdown (and open `_book/index.html` to see the result).  More generally, in a console you can run the following:
+
+```{r, eval = FALSE}
+litr::render("index.Rmd")
+```
+
+## DESCRIPTION file
+
+We start by specifying some basic information for the description file:
+
+```{r package-setup, message=FALSE, results='hide'}
+usethis::create_package(
+  path = ".",
+  fields = list(
+    Package = params$package_name,
+    Version = "0.0.0.9000",
+    Title = "Smoothly Varying Mixture of Gaussians Modeling",
+    Description = "This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.",
+    `Authors@R` = c(person(
+      given = "Jacob",
+      family = "Bien",
+      email = "jbien@usc.edu",
+      role = c("aut", "cre")
+      ),
+      person(
+      given = "Farhad",
+      family = "de Sousa",
+      email = "fdesousa@usc.edu",
+      role = c("aut")
+      )
+    )
+  )
+)
+usethis::use_mit_license(copyright_holder = "F. Last")
+```
+
+## Package-level documentation
+
+Let's include some package-level documentation. Besides being user-friendly, it's also needed because we'll be using "import from" later.  Also, notice that we are importing all of `mclust`.  This is because of [this error](https://stackoverflow.com/questions/46676598/use-a-function-in-an-r-package-that-depends-on-another-different-function) involving `mclustBIC()`, which is called when we call `Mclust()`.
+
+```{package_doc}
+#' Smoothly Varying Mixture of Gaussians Modeling
+#'
+#' This package uses kernel-smoothed EM to estimate a smoothly varying mixture of Gaussians model.
+#' 
+#' @docType package
+#' @import mclust
+```
+
