@@ -15,7 +15,6 @@ Imports:
     dplyr,
     ggplot2,
     grDevices,
-    gridExtra,
     magrittr,
     matrixStats,
     mclust,
@@ -27,4 +26,4 @@ Imports:
     tibble,
     tidyr
 LitrVersionUsed: 0.9.2
-LitrId: a64c52a185aaa9238f859a062f6a6623
+LitrId: 836c085e4f77795eaf1db24a9692df6a

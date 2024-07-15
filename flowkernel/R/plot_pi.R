@@ -23,7 +23,7 @@ plot_pi <- function(pi) {
     ggplot2::scale_color_manual(name = "Cluster", values = rainbow(ncol(pi)))
   
   # Convert ggplot to plotly for interactivity
-  pi_plotly <- plotly::ggplotly(pi_plt, dynamicTicks = TRUE)
+  fig <- plotly::ggplotly(pi_plt, dynamicTicks = TRUE)
   
-  return(pi_plotly)
+  return(fig)
 }

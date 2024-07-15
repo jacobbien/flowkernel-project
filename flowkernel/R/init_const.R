@@ -48,31 +48,8 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
     }
   }
   
-  #calculate responsibilities (can change this to log densities - numerical stability)
-  resp <- list() # responsibilities gamma[[t]][i, k]
-  if (d == 1) {
-    for (tt in seq(num_times)) {
-      phi <- matrix(NA, nrow(y[[tt]]), K)
-      for (k in seq(K)) {
-        phi[, k] <- stats::dnorm(y[[tt]],
-                                 mean = mu[tt, k, 1],
-                                 sd = sqrt(Sigma[tt, k, 1, 1]))
-      }
-      temp <- t(t(phi) * pi[tt, ])
-      resp[[tt]] <- temp / rowSums(temp)
-    }
-  }else if (d > 1){
-    for (tt in seq(num_times)) {
-      phi <- matrix(NA, nrow(y[[tt]]), K)
-      for (k in seq(K)) {
-        phi[, k] <- mvtnorm::dmvnorm(y[[tt]],
-                                     mean = mu[tt, k, ],
-                                     sigma = Sigma[tt, k, , ])
-      }
-      temp <- t(t(phi) * pi[tt, ])
-      resp[[tt]] <- temp / rowSums(temp)
-    }
-  }
+  #calculate responsibilities
+  resp <- calculate_responsibilities(y, mu, Sigma, pi)
   zest <- resp %>% purrr::map(~ max.col(.x))
   list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }

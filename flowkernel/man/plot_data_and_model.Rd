@@ -4,7 +4,7 @@
 \alias{plot_data_and_model}
 \title{Plot data colored by cluster assignment with cluster means}
 \usage{
-plot_data_and_model(y, z, mu)
+plot_data_and_model(y, z, mu, dim = c(1:ncol(y[[1]])), show_data = TRUE)
 }
 \arguments{
 \item{y}{length T list with \code{y[[t]]} being a n_t-by-d matrix}
@@ -12,6 +12,10 @@ plot_data_and_model(y, z, mu)
 \item{z}{a length T list with \code{z[[t]]} being a n_t vector of cluster assignments}
 
 \item{mu}{a T-by-K-by-d array of means}
+
+\item{dim}{an integer which specifies which dimension of the data to plot. Defaults to a vector - \code{c(1:ncol(y[[1]]))} - that will plot all dimensions together}
+
+\item{show_data}{a Boolean variable which determines whether data points are plotted along with the cluster centers or not. Defaults to \code{TRUE}}
 }
 \description{
 Plot data colored by cluster assignment with cluster means

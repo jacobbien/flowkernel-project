@@ -2,7 +2,7 @@
 % Please edit documentation in _main.Rmd.
 \name{kernel_em}
 \alias{kernel_em}
-\title{A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time}
+\title{A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time. The larger any of the three bandwidths are, the smoother the corresponding parameter will vary.}
 \usage{
 kernel_em(
   y,
@@ -35,5 +35,8 @@ in each bin}
 \item{initial_fit}{a list of starting values for the parameters, responsibilities, and estimated cluster assignments}
 }
 \description{
-\link{Add here}
+Element t in the list \code{y}, \code{y[[t]]}, is an n_t-by-d matrix with the coordinates of every point (or bin) at time t given in each row. \code{biomass[[t]]} is a numeric vector of length n_t, where the ith entry of the vector is the biomass for the bin whose coordinates are given in the ith row of \code{y[[t]]}.
+}
+\details{
+The initial_fit parameter is a list of initial parameter values that is generated from the initialization functions in the package. It contains initial values at all times for mu, Sigma, and pi, as well as estimates for the responsibilities and cluster membership. Currently, for our cluster membership estimates (z estimate - zest), each bin is assigned to the cluster that is most responsible for it.
 }

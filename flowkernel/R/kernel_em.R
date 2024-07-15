@@ -1,8 +1,10 @@
 # Generated from _main.Rmd: do not edit by hand
 
-#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time
+#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time. The larger any of the three bandwidths are, the smoother the corresponding parameter will vary. 
 #' 
-#' [Add here]
+#' Element t in the list `y`, `y[[t]]`, is an n_t-by-d matrix with the coordinates of every point (or bin) at time t given in each row. `biomass[[t]]` is a numeric vector of length n_t, where the ith entry of the vector is the biomass for the bin whose coordinates are given in the ith row of `y[[t]]`. 
+#' 
+#' The initial_fit parameter is a list of initial parameter values that is generated from the initialization functions in the package. It contains initial values at all times for mu, Sigma, and pi, as well as estimates for the responsibilities and cluster membership. Currently, for our cluster membership estimates (z estimate - zest), each bin is assigned to the cluster that is most responsible for it.
 #' 
 #' @param y length T list with `y[[t]]` being a n_t-by-d matrix
 #' @param K number of components
@@ -25,31 +27,7 @@ kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10,
   pi <- initial_fit$pi
   for (l in seq(num_iter)) {
         # E-step: update responsibilities
-        resp <- list() # responsibilities gamma[[t]][i, k]
-        # E-step: update responsibilities
-        if (d == 1) {
-          for (tt in seq(num_times)) {
-            phi <- matrix(NA, nrow(y[[tt]]), K)
-            for (k in seq(K)) {
-              phi[, k] <- stats::dnorm(y[[tt]],
-                                       mean = mu[tt, k, 1],
-                                       sd = sqrt(Sigma[tt, k, 1, 1]))
-            }
-            temp <- t(t(phi) * pi[tt, ])
-            resp[[tt]] <- temp / rowSums(temp)
-          }
-        } else if (d > 1){
-          for (tt in seq(num_times)) {
-            phi <- matrix(NA, nrow(y[[tt]]), K)
-            for (k in seq(K)) {
-              phi[, k] <- mvtnorm::dmvnorm(y[[tt]],
-                                           mean = mu[tt,k,],
-                                           sigma = Sigma[tt,k,,])
-            }
-            temp <- t(t(phi) * pi[tt, ])
-            resp[[tt]] <- temp / rowSums(temp)
-          }
-        }
+        resp <- calculate_responsibilities(y, mu, Sigma, pi)
         resp_weighted <- purrr::map2(biomass, resp, ~ .y * .x)
       # M-step: update estimates of (mu, Sigma, pi)
       # do summations over i:

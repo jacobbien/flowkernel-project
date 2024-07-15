@@ -36,9 +36,11 @@ generate_smooth_gauss_mix <- function(mu_function,
   
   z <- list() # z[[t]][i] = class of point i at time t
   y <- list() # y[[t]][i,] = d-vector of point i at time t
+  biomass <- list() # biomass[[t]] = biomass of particles in each bin at time t
   for (t in times) {
     z[[t]] <- apply(stats::rmultinom(num_points[t], 1, pi[t, ]) == 1, 2, which)
     y[[t]] <- matrix(NA, num_points[t], d)
+    biomass[[t]] <- abs(rnorm(num_points[t], mean = 0.01, sd = sqrt(0.001)))
     for (k in 1:K) {
       ii <- z[[t]] == k # index of points in component k at time t
       if (sum(ii) == 0) next
@@ -52,5 +54,5 @@ generate_smooth_gauss_mix <- function(mu_function,
                                                        sigma = Sigma[t, k, , ])
     }
   }
-  list(y = y, z = z, mu = mu, Sigma = Sigma, pi = pi)
+  list(y = y, z = z, mu = mu, Sigma = Sigma, pi = pi, biomass = biomass)
 }

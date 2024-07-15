@@ -4,7 +4,7 @@
 \alias{plot_1d_means_with_width}
 \title{Plot cluster means as 1-d projection over time, with line widths determined by pi}
 \usage{
-plot_1d_means_with_width(mu, pi, dim = 1)
+plot_1d_means_with_width(y, mu, pi, dim = 1)
 }
 \arguments{
 \item{mu}{a T-by-K-by-d array of means}

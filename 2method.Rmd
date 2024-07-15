@@ -4,16 +4,12 @@ Given a kernel $w_h(t)$ with bandwidth $h$, we will be considering the following
 
 Here’s a high-level look at the algorithm. We’ll discuss the initialization, E-step, and M-step in the next subsections.
 
-**Note to Farhad: The function below is referring to biomass and bins even though this hasn't been previously mentioned.  This makes me think that Section 2 should be describing the biomass aspect of this.  This could go in part before Section 2.1 and in part during Section 2.1 if you agree.  One approach could be to create a new section before the current Section 2.1 that describes the form of the data (e.g. bins vs particles, biomass, etc). Question for you: Do you think that `generate_smooth_gauss_mix()` should also generate biomasses?**
-
-**Note to Farhad: For a user of the package (who will not be reading this bookdown but rather using `?kernel_em`), it'd be good to add a bit of explanation below where I have written "[Add here]" (see line 12).  This can be a few lines explaining some things like the use of `y` versus `biomass`.  Also, it'd be good to describe the format of `initial_fit`.**
-
-**Note to Farhad: You'll see that I've made the code a bit more succinct in terms of the initialization of `initial_fit`.  I got rid of the initialization code chunk since it was too short to justify its own code chunk.  However, the initialization section is so long and complex, I would suggest moving this section to after the E-step and M-step sections.  I think as a reader I first want to understand the main algorithm and then be told about initialization.**
-
 ```{r}
-#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time
+#' A Kernel-smoothed EM algorithm for a mixture of Gaussians that changes over time. The larger any of the three bandwidths are, the smoother the corresponding parameter will vary. 
 #' 
-#' [Add here]
+#' Element t in the list `y`, `y[[t]]`, is an n_t-by-d matrix with the coordinates of every point (or bin) at time t given in each row. `biomass[[t]]` is a numeric vector of length n_t, where the ith entry of the vector is the biomass for the bin whose coordinates are given in the ith row of `y[[t]]`. 
+#' 
+#' The initial_fit parameter is a list of initial parameter values that is generated from the initialization functions in the package. It contains initial values at all times for mu, Sigma, and pi, as well as estimates for the responsibilities and cluster membership. Currently, for our cluster membership estimates (z estimate - zest), each bin is assigned to the cluster that is most responsible for it.
 #' 
 <<y-param>>
 #' @param K number of components
@@ -46,9 +42,240 @@ kernel_em <- function (y, K, hmu, hSigma, hpi, num_iter = 10,
 }
 ```
 
+To start off our first E-step, we need estimates of $(\mu,\Sigma,\pi)$ for every cluster for every time point, which we get from our initialization. Before diving into the initialization, however, let us first look at the main algorithm:
+
+## E-step
+
+Given an estimate of $(\mu,\Sigma,\pi)$, the E-step computes for each $Y_{it}$ how "responsible" each cluster is for it.  In particular, the responsibility vector $(\hat\gamma_{it1},\ldots,\hat\gamma_{itK})$ is a probability vector.  It is computed using Bayes rule:
+
+$$
+\hat\gamma_{itk}=\hat{\mathbb{P}}(Z_{it}=k|Y_{it})=\frac{\hat \pi_{tk}\phi(Y_{it};\hat\mu_{tk},\hat\Sigma_{tk})}{\sum_{\ell=1}^K\hat \pi_{t\ell}\phi(Y_{it};\hat\mu_{t\ell },\hat\Sigma_{t\ell})}
+$$
+
+We will create a function that calculates responsibilities given parameter estimates, as we will need to calculate responsibilities elsewhere too (in the initialization). In the function below, we calculate responsibilities using the log of the densities to help with numerical stability, and we use `matrixStats::rowLogSumExps()`, which implements the LogSumExp function (also called RealSoftMax) in a stable way. 
+
+
+```{r}
+#' Calculates responsibilities for each point (or bin) at each time point, given parameter estimates for all clusters at all times 
+<<y-param>>
+#' @param mu a T-by-K-by-d array of means
+#' @param Sigma a T-K-by-d-by-d array of covariance matrices
+#' @param pi a T-by-K vector of probabilities
+calculate_responsibilities <- function(y, mu, Sigma, pi){
+  resp <- list() # responsibilities gamma[[t]][i, k]
+  log_resp <- list() # log of responsibilities
+  d <- ncol(y[[1]])
+  K <- ncol(mu)
+  num_times <- length(y)
+  if (d == 1) {
+    for (tt in seq(num_times)) {
+      log_phi <- matrix(NA, nrow(y[[tt]]), K)
+      for (k in seq(K)) {
+        log_phi[, k] <- stats::dnorm(y[[tt]],
+                                     mean = mu[tt, k, 1],
+                                     sd = sqrt(Sigma[tt, k, 1, 1]), log = TRUE)
+      }
+      log_temp = t(t(log_phi) + log(pi[tt, ]))
+      log_resp[[tt]] = log_temp - matrixStats::rowLogSumExps(log_temp)
+      resp[[tt]] = exp(log_resp[[tt]])
+    }
+  } else if (d > 1) {
+    for (tt in seq(num_times)) {
+      log_phi <- matrix(NA, nrow(y[[tt]]), K)
+      for (k in seq(K)) {
+        log_phi[, k] <- mvtnorm::dmvnorm(y[[tt]],
+                                         mean = mu[tt, k, ],
+                                         sigma = Sigma[tt, k, , ], log = TRUE)
+      }
+      log_temp = t(t(log_phi) + log(pi[tt, ]))
+      log_resp[[tt]] = log_temp - matrixStats::rowLogSumExps(log_temp)
+      resp[[tt]] = exp(log_resp[[tt]])
+    }
+  }
+  return(resp) 
+}
+```
+
+
+```{r E-step, eval = FALSE}
+    # E-step: update responsibilities
+    resp <- calculate_responsibilities(y, mu, Sigma, pi)
+    resp_weighted <- purrr::map2(biomass, resp, ~ .y * .x)
+```
+
+
+## M-step
+
+In the M-step, we update the estimates of $(\mu,\Sigma,\pi)$:
+
+```{r M-step, eval = FALSE}
+  # M-step: update estimates of (mu, Sigma, pi)
+<<M-step-pi>>
+<<M-step-mu>>
+<<M-step-Sigma>>
+```
+
+We now assume that we are working with binned data, where $C_i^{(t)}$ is the number of particles (or the biomass) at time $t$ in bin $i$, where $i$ goes from $1$ to $B$, the total number of bins. In the case of unbinned data, we take $C_i^{(t)} = 1$ for each point in the data.
+$$
+\hat\gamma_{\cdot sk}=\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk},
+$$
+which is an estimate of the number of points (or total biomass) in class $k$ at time $s$, and define
+
+$$
+\tilde\gamma_{\cdot tk}=\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk},
+$$
+which is a smoothed version of this estimate.
+
+Then we estimate $\pi$ as follows:
+
+$$
+\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}
+$$
+where $n_s = \sum_{i=1}^{B} C_i^{(s)}$ is the total number of points (or total biomass) at time $s$. 
+
+For $\mu$:
+
+$$
+\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_{h_\mu}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}}{\sum_{s=1}^Tw_{h_\mu}(t-s)\hat\gamma_{\cdot sk}}
+$$
+
+For $\Sigma$:
+
+$$
+\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\hat\gamma_{\cdot sk}}
+$$
+
+Each of these quantities involves a summation over $i$ before the smoothing over time.  In each case we do the summation over $i$ first so that then all quantities can be expressed as an array (rather than as lists).  This should make the smoothing more efficient.
+
+### M-step $\pi$
+
+For $\pi$ estimation, we compute 
+
+$$
+\hat\gamma_{\cdot sk}=\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk},
+$$
+And then we compute the kernel smoothed version of this:
+
+$$
+\tilde\gamma_{\cdot tk}=\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk},
+$$
+
+We are then ready to compute the following:
+
+$$
+\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}
+$$
+
+```{r M-step-pi, eval=FALSE}
+  # do summations over i:
+  #form T-by-K matrix summing resp_itk over i
+resp_sum <- purrr::map(resp_weighted, ~ colSums(.x)) %>%
+      unlist() %>%
+      matrix(ncol = K, byrow = TRUE)
+
+resp_sum_smooth <- apply(
+  resp_sum, 2, function(x) 
+    stats::ksmooth(1:length(x), x, bandwidth = hpi, x.points = 1:length(x))$y
+)
+pi <- resp_sum_smooth / rowSums(resp_sum_smooth)
+```
+
+Here is an example that demonstrates how the `ksmooth()` function works:
+
+```{r}
+xx <- 5 * sin((1:100) / 5) + rnorm(100)
+plot(xx, type="o")
+lines(stats::ksmooth(1:length(xx), xx, bandwidth = 5, x.points = 1:length(xx)), col="red")
+lines(stats::ksmooth(1:length(xx), xx, bandwidth = 20, x.points = 1:length(xx)), col="blue")
+```
+
+### M-step $\mu$
+
+Next, we compute the estimate of $\mu$.  We again first compute the unsmoothed estimate and then apply smoothing to it:
+
+$$
+\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}
+$$
+This is then used in the following smoothed estimate:
+
+$$
+\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_{h_\mu}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}}{\sum_{s=1}^Tw_{h_\mu}(t-s)\hat\gamma_{\cdot sk}}
+$$
+
+
+```{r M-step-mu, eval=FALSE}
+  # form T-by-K-by-d array summing resp_itk * Y_ij over i
+y_sum <- purrr::map2(resp_weighted, y, ~ crossprod(.x, .y)) %>% 
+      unlist() %>% 
+      array(c(K, d, num_times)) %>% 
+      aperm(c(3,1,2))
+
+y_sum_smoothed <- apply(
+      y_sum, 2:3, function(x) 
+      stats::ksmooth(1:length(x), x, bandwidth = hmu, x.points = 1:length(x))$y
+)
+resp_sum_smooth_mu <- apply(
+      resp_sum, 2, function(x) 
+      stats::ksmooth(1:length(x), x, bandwidth = hmu, x.points = 1:length(x))$y
+)
+
+for (j in seq(d)) {
+  mu[, , j] <- y_sum_smoothed[, , j] / resp_sum_smooth_mu
+}
+```
+
+In the above code for `y_sum`, I convert a list of length $T$, where each list element is a $K\times d$ matrix, to a $T\times K\times d$ array.  To verify that this conversion is done correctly, I tried this small example:
+
+```{r}
+a <- list(matrix(1:12, 4, 3), matrix(13:24, 4, 3))
+a
+a %>% unlist() %>% array(c(4,3,2))
+```
+
+### M-step $\Sigma$
+
+We start by computing
+
+$$
+\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top
+$$
+
+and then go on to compute
+
+$$
+\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\hat\gamma_{\cdot sk}}
+$$
+
+```{r M-step-Sigma, eval=FALSE}
+  # form a T-by-K-by-d-by-d array
+  # summing (Y_it - mu_t)*diag(resp_itk)*(Y_it - mu_t)^T over i
+mat_sum <- array(NA, c(num_times, K, d, d))
+    for (tt in seq(num_times)) {
+      yy <- matrix(NA, dim(y[[tt]])[1], d)
+      for (k in seq(K)) {
+        for(dd in seq(d)) {
+          #yy [,dd] <- (y[[tt]][, dd]- mu_sig[tt, k, dd])
+          yy [,dd] <- (y[[tt]][, dd]- mu[tt, k, dd])
+        }
+          mat_sum[tt, k, , ] <- crossprod(yy, yy * resp_weighted[[tt]][, k]) # YY^T * D * YY
+        }
+      }
+    mat_sum_smoothed <- apply(
+      mat_sum, 2:4, function(x)
+        stats::ksmooth(1:length(x), x, bandwidth = hSigma, x.points = 1:length(x))$y
+    )
+    resp_sum_smooth_Sigma <- apply(
+      resp_sum, 2, function(x) 
+        stats::ksmooth(1:length(x), x, bandwidth = hSigma, x.points = 1:length(x))$y
+    )
+    for (j in seq(d))
+      for (l in seq(d))
+        Sigma[, , j, l] <- mat_sum_smoothed[, , j, l] / resp_sum_smooth_Sigma
+```
+
 ## Initialization
 
-First, we begin with a function that creates a "default biomass" for data that is unbinned (give each point biomass (or count) 1).
+First, we begin with a function that creates a "default biomass" for data that is unbinned (we give each point a biomass (or count) of 1).
 
 ```{r}
 #' Creates a biomass list of length T, where each element `biomass[[t]]` is a numeric vector of length n_t containing just 1's. 
@@ -117,37 +344,12 @@ init_const <- function (y, K, times_to_sample = 50, points_to_sample = 50){
     }
   }
   
-  #calculate responsibilities (can change this to log densities - numerical stability)
-  resp <- list() # responsibilities gamma[[t]][i, k]
-  if (d == 1) {
-    for (tt in seq(num_times)) {
-      phi <- matrix(NA, nrow(y[[tt]]), K)
-      for (k in seq(K)) {
-        phi[, k] <- stats::dnorm(y[[tt]],
-                                 mean = mu[tt, k, 1],
-                                 sd = sqrt(Sigma[tt, k, 1, 1]))
-      }
-      temp <- t(t(phi) * pi[tt, ])
-      resp[[tt]] <- temp / rowSums(temp)
-    }
-  }else if (d > 1){
-    for (tt in seq(num_times)) {
-      phi <- matrix(NA, nrow(y[[tt]]), K)
-      for (k in seq(K)) {
-        phi[, k] <- mvtnorm::dmvnorm(y[[tt]],
-                                     mean = mu[tt, k, ],
-                                     sigma = Sigma[tt, k, , ])
-      }
-      temp <- t(t(phi) * pi[tt, ])
-      resp[[tt]] <- temp / rowSums(temp)
-    }
-  }
+  #calculate responsibilities
+  resp <- calculate_responsibilities(y, mu, Sigma, pi)
   zest <- resp %>% purrr::map(~ max.col(.x))
   list(mu = mu, Sigma = Sigma, pi = pi, resp = resp, zest = zest)
 }
 ```
-
-**Note to Farhad: In general it's best to avoid repeating the same lines of code in different places.  I'm noticing multiple places where you need to calculate responsibilities.  I would suggest defining a function called something like `calculate_responsibilities()` that takes a `mu`, `Sigma`, and `pi` as input.**
 
 In the above, we concatenated a list of matrices.  Here's a small example to verify that this is working as intended:
 
@@ -179,65 +381,84 @@ Pretty reasonable centers were chosen! If we get a bad initialization by chance 
 
 ### Bayesian Initialization
 
-We'd like to have an initialization method that can vary with time yet can do well even for time points where there is only a small number of particles in a given cluster.  The idea is to take a Bayesian approach in which the previous time point serves as the prior for the next time point.  The implicit assumption is that the parameters vary sufficiently smoothly that the previous time point's parameter values are a reasonable estimate of the next time point's parameter values. For now, we take the priors to be based on the previous time point, but we can also consider priors formed based on all previous time points.
+We'd like to have an initialization method that can vary with time yet can do well even for time points where there is only a small number of particles in a given cluster. The idea is to take a Bayesian approach in which the previous time point serves as the prior for the next time point. The implicit assumption is that the parameters vary sufficiently smoothly that the previous time point's parameter values are a reasonable estimate of the next time point's parameter values. For now, we take the priors to be based on the previous time point, but we can also consider priors formed based on all previous time points.
 
 Let $\tilde\gamma_{itk} = C_i^{(t)}\gamma_{itk}$, which are "weighted responsibilities", where each $\gamma_{itk}$ has been multiplied with the corresponding biomass of bin $i$ at time $t$. We use these weighted responsibilities in our Bayesian approach (can make it unweighted to simplify). 
 
+#### M-step $\pi$ 
 For $\pi_{tk}$, we assume a Dirichlet prior, getting a posterior mean of: (this specific calculation needs to be double checked)
-
-**Note to Farhad: In terms of double checking, it would be good to write out more details here.  In particular, for such a calculation, we'd like to know what the prior is (stating hyperparameter values not just "Dirichlet") and then what the random variable is whose parameters are described by the prior.  And then what the posterior is.  And then finally the below equation would be the posterior mean.  Here's my attempt to do this (would be good for you to verify and then do the same for the other parameters beyond $\pi_t$):**
 
 At time $t$ we imagine estimating the number of points in each class $k$, which is
 
 $$
-n_t\hat{\pi}_t|\pi_t\sim\text{Multinomial}(n_t,\pi_{t})
+n_t\hat{\pi}_{tk}|\pi_{tk}\sim\text{Multinomial}(n_t,\pi_{t})
 $$
-where $\hat{\pi}_t,\pi_t$ are $K$-dimensional probability vectors.  Our prior takes the previous 
 
-$$\pi_{t}\sim \text{Dirichlet}(n_{t-1}\hat{\pi}_{t-1}).$$
+where $\hat{\pi}_{tk},\pi_{tk}$ are $K$-dimensional probability vectors. Our prior takes the previous number of points
+
+$$
+\pi_{tk}\sim \text{Dirichlet}(n_{t-1}\hat{\pi}_{t-1k}).
+$$
+
 (Here we are conditioning on everything that happened before time $t$, but omitting this in the notation.)
 
 Thus, the posterior is
 
 $$
-\pi_t|n_t\hat\pi_t\sim \text{Dirichlet}(n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1})
+\pi_{tk}|n_t\hat\pi_{tk}\sim \text{Dirichlet}(n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1})
 $$
 
 and the posterior mean is thus
 
 $$
-\mathbb E[\pi_t|n_t\hat\pi_t]=\frac{n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1}}{\sum_{k=1}^K[n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1,k}]}=\frac{n_t\hat\pi_t+n_{t-1}\hat{\pi}_{t-1}}{n_t+n_{t-1}}.
+\mathbb{E}[\pi_{tk}|n_t\hat\pi_{tk}]=\frac{n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1,k}}{\sum_{k=1}^K[n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1,k}]}=\frac{n_t\hat\pi_{tk}+n_{t-1}\hat{\pi}_{t-1,k}}{n_t+n_{t-1}}.
 $$
-In other words, we estimate the vector $\pi_t$ to be the convex combination $\alpha_t\hat\pi_t+(1-\alpha_t)\hat\pi_{t-1}$, where $\alpha_t=n_t/(n_t+n_{t-1})$.
 
-**Note to Farhad: This is the end of my suggested description of the $pi$ part of the Bayesian method.  I didn't tackle the biomass aspect of this, so I'll leave it to you to figure out how this can be adapted to that case.**
+In other words, we estimate the vector $\pi_{tk}$ to be the convex combination $\alpha_t\hat\pi_{tk}+(1-\alpha_t)\hat\pi_{t-1k}$, where $\alpha_t=n_t/(n_t+n_{t-1})$. Our final estimate is therefore
 
 $$
-\hat{\pi}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right) + \sum_{i=1}^{n_t} \tilde\gamma_{itk}}
+\hat{\pi}_{tk} = \frac{\left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right) + \left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{it-1k}\right)}
 {n_{t-1} + n_{t}}
 $$
 
+
 where $n_t = \sum_{i=1}^{B} C_i^{(t)}$ is the total number of points (or total biomass) at time $t$. Here, $B$ is the total number of bins (or points, if the data is unbinned).
 
-
-For $\mu_{tk}$, we assume a prior that's a multivariate normal distribution with mean $\mu_{t-1,k}$ and covariance matrix $\frac{1}{n_{t-1,k}} \hat\Sigma_{t-1,k}$. We then get the following posterior mean:
+#### M-step $\mu$
+For estimating $\mu_{tk}$, we assume that we known covariance matrix at time $t$: $\hat\Sigma_{t-1,k}$ (the previous time's estimate); and we assume a multivariate normal prior centered around the previous time's mean, with the scaled covariance matrix:
 
 $$
-\hat{\mu}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) \mu_{k,t-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} Y_{it}}
-{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
+\mu_{tk}\sim\mathcal{N}(\hat{\mu}_{t-1,k}, \frac{1}{n_{t-1,k}} \hat\Sigma_{t-1,k})
 $$
-We then estimate $\hat\Sigma_{tk}$ using the posterior mean again, assuming a prior that's an inverse-Wishart with mean $\hat\Sigma_{t-1,k}$. Our estimate is:
+
+We then get the following posterior:
+$$
+\mu_{tk}|\hat{\mu}_{tk}\sim\mathcal{N}(\frac{n_{tk}\bar{Y}_{it} + n_{t-1}\hat{\mu}_{t-1,k}}{n_{tk}+n_{t-1,k}}, \frac{1}{n_{t-1,k} + n_{tk}} \hat\Sigma_{t-1,k})
+$$
+
+where $\bar{Y}_{it} = \frac{\sum_{i=1}^{n_{t}} \tilde\gamma_{itk}Y_{it}}{\sum_{i=1}^{n_{t}} \tilde\gamma_{itk}}$ can be thought of as the mean of our data points in cluster $k$ at time $t$. Our estimate for $\mu_{tk}$ is then
+$$
+\hat{\mu}_{tk} = \mathbb{E}[\mu_{tk}|\hat\mu_{tk}] = \frac{ \sum_{i=1}^{n_t} \tilde\gamma_{itk} Y_{it} + \left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) \hat{\mu}_{t-1,k}}
+{ \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right) + \left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right)}
+$$
+
+#### M-step $\Sigma$
+We then estimate $\hat\Sigma_{tk}$ in a similar way, assuming a prior that's an inverse-Wishart with mean $\hat\Sigma_{t-1,k}$. Our estimate is:
 
 $$
 \hat{\Sigma}_{tk} = \frac{\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) \Sigma_{k,t-1} + \sum_{i=1}^{n_t} \tilde\gamma_{itk} \left(Y_{it} - \mu_{tk}\right) \left(Y_{it} - \mu_{tk}\right)^T}
 {\left(\sum_{i=1}^{n_{t-1}} \tilde\gamma_{i,t-1,k}\right) + \left(\sum_{i=1}^{n_t} \tilde\gamma_{itk}\right)}
 $$
 
-A bit more thought is required regarding what multiple iterations (default number of iterations is 1) of this Bayesian EM-algorithm would do (on the second iteration and above, we use $\mu_{kt}$ from the previous iteration in the place of $\mu_{t-1,k}$, and similarly for $\Sigma_{tk}$ and $\pi_{tk}$). We also add the option to introduce Laplace smoothing for calculating the responsibilities, to prevent $pi_{tk}$ collapsing to 0 for some clusters (the default Laplace smoothing constant is 0). Here is the function that implements this approach:
+A bit more thought is required regarding what multiple iterations (default number of iterations is 1) of this Bayesian EM-algorithm would do (on the second iteration and above, we use $\mu_{kt}$ from the previous iteration in the place of $\mu_{t-1,k}$, and similarly for $\Sigma_{tk}$ and $\pi_{tk}$). 
 
-**Note to Farhad: I agree with your comment below that more explanation about Laplace smoothing is needed.  Unless you don't think we need it anymore, in which case it can be removed.**
+We also add the option to introduce Laplace smoothing for calculating the responsibilities, to prevent $\pi_{tk}$ collapsing to 0 over time for some clusters. The Laplace smoothing works by replacing the responsibilities calculation with:
 
-**Note to Farhad: You should describe in the text what is going on with `matrixStats::rowLogSumExps()`.  Also, this part would probably be packaged in the function `calculate_responsibilities()` that I've suggested you create.**
+$$
+\hat\gamma_{itk}=\hat{\mathbb{P}}(Z_{it}=k|Y_{it})=\frac{\hat \pi_{tk}\phi(Y_{it};\hat\mu_{tk},\hat\Sigma_{tk}) + \alpha \min_{c} \hat \pi_{tc}\phi(Y_{it};\hat\mu_{tc},\hat\Sigma_{tc})}{\sum_{\ell=1}^K \left( \hat \pi_{t\ell}\phi(Y_{it};\hat\mu_{t\ell },\hat\Sigma_{t\ell}) + \alpha \min_{c} \hat \pi_{tc}\phi(Y_{it};\hat\mu_{tc},\hat\Sigma_{tc}) \right)}
+$$
+
+where $\alpha_L$ is the Laplace smoothing constant (which defaults to 0). Here is the function that implements this approach:
 
 ```{r}
 #' Initialize the Kernel EM-algorithm using Bayesian methods
@@ -424,216 +645,10 @@ usethis::use_package("matrixStats")
 Now that we have responsibilities, we can plot the biomass for each cluster over time:
 
 ```{r}
-plot_biomass(default_biomass(ex2$dat$y), ex2_init_bayes$resp)
+plot_biomass(ex2$dat$biomass, ex2_init_bayes$resp)
 ```
 
-## E-step
-
-Given an estimate of $(\mu,\Sigma,\pi)$, the E-step computes for each $Y_{it}$ how "responsible" each cluster is for it.  In particular, the responsibility vector $(\hat\gamma_{it1},\ldots,\hat\gamma_{itK})$ is a probability vector.  It is computed using Bayes rule:
-
-$$
-\hat\gamma_{itk}=\hat{\mathbb{P}}(Z_{it}=k|Y_{it})=\frac{\hat \pi_{tk}\phi(Y_{it};\hat\mu_{tk},\hat\Sigma_{tk})}{\sum_{\ell=1}^K\hat \pi_{t\ell}\phi(Y_{it};\hat\mu_{t\ell },\hat\Sigma_{t\ell})}
-$$
-
-```{r E-step, eval = FALSE}
-    # E-step: update responsibilities
-    resp <- list() # responsibilities gamma[[t]][i, k]
-    # E-step: update responsibilities
-    if (d == 1) {
-      for (tt in seq(num_times)) {
-        phi <- matrix(NA, nrow(y[[tt]]), K)
-        for (k in seq(K)) {
-          phi[, k] <- stats::dnorm(y[[tt]],
-                                   mean = mu[tt, k, 1],
-                                   sd = sqrt(Sigma[tt, k, 1, 1]))
-        }
-        temp <- t(t(phi) * pi[tt, ])
-        resp[[tt]] <- temp / rowSums(temp)
-      }
-    } else if (d > 1){
-      for (tt in seq(num_times)) {
-        phi <- matrix(NA, nrow(y[[tt]]), K)
-        for (k in seq(K)) {
-          phi[, k] <- mvtnorm::dmvnorm(y[[tt]],
-                                       mean = mu[tt,k,],
-                                       sigma = Sigma[tt,k,,])
-        }
-        temp <- t(t(phi) * pi[tt, ])
-        resp[[tt]] <- temp / rowSums(temp)
-      }
-    }
-    resp_weighted <- purrr::map2(biomass, resp, ~ .y * .x)
-```
-
-
-## M-step
-
-In the M-step, we update the estimates of $(\mu,\Sigma,\pi)$:
-
-```{r M-step, eval = FALSE}
-  # M-step: update estimates of (mu, Sigma, pi)
-<<M-step-pi>>
-<<M-step-mu>>
-<<M-step-Sigma>>
-```
-
-We now assume that we are working with binned data, where $C_i^{(t)}$ is the number of particles (or the biomass) at time $t$ in bin $i$, where $i$ goes from $1$ to $B$, the total number of bins. In the case of unbinned data, we take $C_i^{(t)} = 1$ for each point in the data.
-$$
-\hat\gamma_{\cdot sk}=\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk},
-$$
-which is an estimate of the number of points (or total biomass) in class $k$ at time $s$, and define
-
-$$
-\tilde\gamma_{\cdot tk}=\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk},
-$$
-which is a smoothed version of this estimate.
-
-Then we estimate $\pi$ as follows:
-
-$$
-\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}
-$$
-where $n_s = \sum_{i=1}^{B} C_i^{(s)}$ is the total number of points (or total biomass) at time $s$. 
-
-For $\mu$:
-
-$$
-\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_{h_\mu}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}}{\sum_{s=1}^Tw_{h_\mu}(t-s)\hat\gamma_{\cdot sk}}
-$$
-
-For $\Sigma$:
-
-$$
-\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\hat\gamma_{\cdot sk}}
-$$
-
-Each of these quantities involves a summation over $i$ before the smoothing over time.  In each case we do the summation over $i$ first so that then all quantities can be expressed as an array (rather than as lists).  This should make the smoothing more efficient.
-
-### M-step $\pi$
-
-For $\pi$ estimation, we compute 
-
-$$
-\hat\gamma_{\cdot sk}=\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk},
-$$
-And then we compute the kernel smoothed version of this:
-
-$$
-\tilde\gamma_{\cdot tk}=\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk},
-$$
-
-We are then ready to compute the following:
-
-$$
-\hat\pi_{tk}=\frac{\sum_{s=1}^Tw_{h_\pi}(t-s)\hat\gamma_{\cdot sk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}=\frac{\tilde\gamma_{\cdot tk}}{\sum_{s=1}^T{w_{h_\pi}(t-s)n_s}}
-$$
-
-```{r M-step-pi, eval=FALSE}
-  # do summations over i:
-  #form T-by-K matrix summing resp_itk over i
-resp_sum <- purrr::map(resp_weighted, ~ colSums(.x)) %>%
-      unlist() %>%
-      matrix(ncol = K, byrow = TRUE)
-
-resp_sum_smooth <- apply(
-  resp_sum, 2, function(x) 
-    stats::ksmooth(1:length(x), x, bandwidth = hpi, x.points = 1:length(x))$y
-)
-pi <- resp_sum_smooth / rowSums(resp_sum_smooth)
-```
-
-Here is an example that demonstrates how the `ksmooth()` function works:
-
-```{r}
-xx <- 5 * sin((1:100) / 5) + rnorm(100)
-plot(xx, type="o")
-lines(stats::ksmooth(1:length(xx), xx, bandwidth = 5, x.points = 1:length(xx)), col="red")
-lines(stats::ksmooth(1:length(xx), xx, bandwidth = 20, x.points = 1:length(xx)), col="blue")
-```
-
-### M-step $\mu$
-
-Next, we compute the estimate of $\mu$.  We again first compute the unsmoothed estimate and then apply smoothing to it:
-
-$$
-\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}
-$$
-This is then used in the following smoothed estimate:
-
-$$
-\hat\mu_{tk}=\frac{\sum_{s=1}^Tw_{h_\mu}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}Y_{is}}{\sum_{s=1}^Tw_{h_\mu}(t-s)\hat\gamma_{\cdot sk}}
-$$
-
-
-```{r M-step-mu, eval=FALSE}
-  # form T-by-K-by-d array summing resp_itk * Y_ij over i
-y_sum <- purrr::map2(resp_weighted, y, ~ crossprod(.x, .y)) %>% 
-      unlist() %>% 
-      array(c(K, d, num_times)) %>% 
-      aperm(c(3,1,2))
-
-y_sum_smoothed <- apply(
-      y_sum, 2:3, function(x) 
-      stats::ksmooth(1:length(x), x, bandwidth = hmu, x.points = 1:length(x))$y
-)
-resp_sum_smooth_mu <- apply(
-      resp_sum, 2, function(x) 
-      stats::ksmooth(1:length(x), x, bandwidth = hmu, x.points = 1:length(x))$y
-)
-
-for (j in seq(d)) {
-  mu[, , j] <- y_sum_smoothed[, , j] / resp_sum_smooth_mu
-}
-```
-
-In the above code for `y_sum`, I convert a list of length $T$, where each list element is a $K\times d$ matrix, to a $T\times K\times d$ array.  To verify that this conversion is done correctly, I tried this small example:
-
-```{r}
-a <- list(matrix(1:12, 4, 3), matrix(13:24, 4, 3))
-a
-a %>% unlist() %>% array(c(4,3,2))
-```
-
-### M-step $\Sigma$
-
-We start by computing
-
-$$
-\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top
-$$
-
-and then go on to compute
-
-$$
-\hat\Sigma_{tk}=\frac{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\sum_{i=1}^{B}C_i^{(s)}\hat\gamma_{isk}(Y_{is}-\hat\mu_{sk})(Y_{is}-\hat\mu_{sk})^\top}{\sum_{s=1}^Tw_{h_\Sigma}(t-s)\hat\gamma_{\cdot sk}}
-$$
-
-```{r M-step-Sigma, eval=FALSE}
-  # form a T-by-K-by-d-by-d array
-  # summing (Y_it - mu_t)*diag(resp_itk)*(Y_it - mu_t)^T over i
-mat_sum <- array(NA, c(num_times, K, d, d))
-    for (tt in seq(num_times)) {
-      yy <- matrix(NA, dim(y[[tt]])[1], d)
-      for (k in seq(K)) {
-        for(dd in seq(d)) {
-          #yy [,dd] <- (y[[tt]][, dd]- mu_sig[tt, k, dd])
-          yy [,dd] <- (y[[tt]][, dd]- mu[tt, k, dd])
-        }
-          mat_sum[tt, k, , ] <- crossprod(yy, yy * resp_weighted[[tt]][, k]) # YY^T * D * YY
-        }
-      }
-    mat_sum_smoothed <- apply(
-      mat_sum, 2:4, function(x)
-        stats::ksmooth(1:length(x), x, bandwidth = hSigma, x.points = 1:length(x))$y
-    )
-    resp_sum_smooth_Sigma <- apply(
-      resp_sum, 2, function(x) 
-        stats::ksmooth(1:length(x), x, bandwidth = hSigma, x.points = 1:length(x))$y
-    )
-    for (j in seq(d))
-      for (l in seq(d))
-        Sigma[, , j, l] <- mat_sum_smoothed[, , j, l] / resp_sum_smooth_Sigma
-```
+The lines are so jagged because we independently drew from a normal distribution for the biomass of each "bin" at each time.
 
 ## Trying out the method
 
@@ -659,14 +674,20 @@ plot_data_and_model(ex2$dat$y, fit$zest, fit$mu)
 Let's look at how the $\pi$'s and $\mu$'s evolve over time:
 ```{r}
 plot_pi(fit$pi)
-plot_1d_means(fit$mu, dim = 1)
+plot_data_and_model(ex2$dat$y, fit$zest, fit$mu, dim = 1, show_data = FALSE)
 ```
+
+We can look at how the means evolve in any dimension with the data too:
+```{r}
+plot_data_and_model(ex2$dat$y, fit$zest, fit$mu, dim = 2)
+```
+
 Let's have a look at the responsibilities that we get from our model. We consider the first 4 bins in the 50th time point:
 
 ```{r}
 fit$resp[[50]][1:4, ]
 ```
-We see that the algorithm is pretty certain that the first bin at time point 50 belongs to cluster 2, the second to cluster 2 also, the third to cluster 1, and the 4th to cluster 3. We might not always have this certainty for points that are somewhat "midway" between different cluster centers.  For example:
+We see that the algorithm is pretty certain tabout it's assignments, but we might not always have this certainty for points that are somewhat "midway" between different cluster centers.  For example:
 
 ```{r}
 round(fit$resp[[92]][135,],2)
@@ -682,7 +703,7 @@ plot_data_and_model(ex2$dat$y, fit$zest, fit$mu)
 Let's look at how the $\pi$'s and $\mu$'s evolve over time again:
 ```{r}
 plot_pi(fit$pi)
-plot_1d_means(fit$mu, dim = 1)
+plot_data_and_model(ex2$dat$y, fit$zest, fit$mu, dim = 1, show_data = FALSE)
 ```
 
 Now let's see what happens when we use the Bayesian initialization:
@@ -694,7 +715,7 @@ plot_data_and_model(ex2$dat$y, fit$zest, fit$mu)
 Let's look at how the $\pi$'s and $\mu$'s evolve over time again:
 ```{r}
 plot_pi(fit$pi)
-plot_1d_means(fit$mu, dim = 1)
+plot_data_and_model(ex2$dat$y, fit$zest, fit$mu, dim = 1, show_data = FALSE)
 ```
 
 They look pretty similar! The algorithm is able to make up the difference between the cheap constant initialization and the improved Bayesian initialization, at least in this simple case.

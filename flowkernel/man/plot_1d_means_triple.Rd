@@ -4,7 +4,7 @@
 \alias{plot_1d_means_triple}
 \title{Plot cluster means as 1-d projection over time, with all three dimensions plotted together, in separate plots}
 \usage{
-plot_1d_means_triple(mu)
+plot_1d_means_triple(y, mu)
 }
 \arguments{
 \item{mu}{a T-by-K-by-d array of means}
