@@ -143,7 +143,6 @@ plot_data_and_model <- function(y, z, mu, dim = c(1:ncol(y[[1]])), show_data = T
           aspectratio = list(x = 1, y = 1, z = 1)  # Specify the fixed aspect ratio
         ))
     } else {
-      y <- purrr::map(y, ~ .x[, dim, drop = FALSE])
       y_label <- ifelse(is.null(colnames(y[[1]])), paste0("V", dim), colnames(y[[1]])[dim])
       
       df <- data.frame(time = seq_along(mu[, 1, 1]))
@@ -164,6 +163,7 @@ plot_data_and_model <- function(y, z, mu, dim = c(1:ncol(y[[1]])), show_data = T
       fig <- plotly::ggplotly(plt, dynamicTicks = TRUE)
       
       if (show_data == TRUE) {
+        y <- purrr::map(y, ~ .x[, dim, drop = FALSE])
         dat_df <- purrr::map2_dfr(z, y, ~ tibble::tibble(z = as.factor(.x), y = .y), .id = "time") %>%
         dplyr::mutate(time = as.numeric(.data$time))
       
